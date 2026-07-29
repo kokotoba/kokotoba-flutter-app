@@ -1,0 +1,153 @@
+import 'package:flutter/material.dart';
+
+import '../../../speech_service.dart';
+import '../../common/components/kokotoba_components.dart';
+import '../../theme/color.dart';
+
+class SoundBars extends StatelessWidget {
+  const SoundBars({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [20.0, 34.0, 48.0, 30.0, 18.0]
+          .map(
+            (height) => Container(
+              width: 6,
+              height: height,
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              decoration: BoxDecoration(
+                color: rose700,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class HeardCard extends StatelessWidget {
+  const HeardCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.person_outline, size: 22, color: rose700),
+                const SizedBox(width: 8),
+                Text('相手の発言', style: Theme.of(context).textTheme.labelLarge),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Text(
+                '「今日は体調はいかがですか？」',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(onPressed: () {}, child: const Text('聞き直す')),
+                TextButton(onPressed: () {}, child: const Text('修正する')),
+                TextButton(onPressed: () {}, child: const Text('無視する')),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SuggestionCard extends StatelessWidget {
+  const SuggestionCard({
+    super.key,
+    required this.text,
+    required this.reason,
+    required this.onSelect,
+    this.recommended = false,
+  });
+
+  final String text;
+  final String reason;
+  final VoidCallback onSelect;
+  final bool recommended;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: warmWhite,
+      elevation: recommended ? 2 : 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(
+          color: recommended ? rose700 : outline,
+          width: recommended ? 2 : 1,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onSelect,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (recommended) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: rose050,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'おすすめ',
+                    style: TextStyle(
+                      color: rose700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              Text(text, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      reason,
+                      style: const TextStyle(color: mutedInk),
+                    ),
+                  ),
+                  SmallIconAction(
+                    icon: Icons.volume_up_outlined,
+                    label: '読む',
+                    onTap: () => SpeechService.speak(text),
+                  ),
+                  const SmallIconAction(icon: Icons.edit_outlined, label: '編集'),
+                  const SmallIconAction(icon: Icons.star_border, label: '保存'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 
-const rose700 = Color(0xFFA34E4A);
-const rose600 = Color(0xFFB85F5A);
-const rose100 = Color(0xFFF2D6D3);
-const rose050 = Color(0xFFFBE9E7);
-const ink = Color(0xFF2B201F);
-const mutedInk = Color(0xFF665552);
-const warmWhite = Color(0xFFFFFAF9);
-const softSurface = Color(0xFFF8F0EF);
-const outline = Color(0xFFBDA5A2);
+import 'color.dart';
+import 'type.dart';
 
 ThemeData kokotobaTheme() {
   final scheme = const ColorScheme.light(
@@ -35,35 +28,7 @@ ThemeData kokotobaTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: warmWhite,
     fontFamilyFallback: const ['Hiragino Sans', 'Noto Sans JP'],
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(
-        fontSize: 30,
-        height: 1.27,
-        fontWeight: FontWeight.bold,
-      ),
-      headlineSmall: TextStyle(
-        fontSize: 24,
-        height: 1.33,
-        fontWeight: FontWeight.bold,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 20,
-        height: 1.4,
-        fontWeight: FontWeight.bold,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 17,
-        height: 1.41,
-        fontWeight: FontWeight.w600,
-      ),
-      bodyLarge: TextStyle(fontSize: 17, height: 1.53),
-      bodyMedium: TextStyle(fontSize: 15, height: 1.47),
-      labelLarge: TextStyle(
-        fontSize: 15,
-        height: 1.33,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
+    textTheme: kokotobaTextTheme(),
     cardTheme: const CardThemeData(
       elevation: 0,
       margin: EdgeInsets.zero,

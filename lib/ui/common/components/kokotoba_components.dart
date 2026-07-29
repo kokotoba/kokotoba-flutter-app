@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'theme.dart';
+import '../../theme/color.dart';
 
 class PageLayout extends StatelessWidget {
   const PageLayout({
