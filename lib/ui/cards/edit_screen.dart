@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../speech_service.dart';
+import '../../core/util/speech_util.dart';
 import '../common/components/kokotoba_components.dart';
 
 class EditScreen extends StatefulWidget {
@@ -102,7 +102,7 @@ class _EditScreenState extends State<EditScreen> {
           SizedBox(
             height: 56,
             child: OutlinedButton.icon(
-              onPressed: () => SpeechService.speak(controller.text),
+              onPressed: () => SpeechUtil.speak(controller.text),
               icon: const Icon(Icons.volume_up_outlined),
               label: const Text('音声で確認する'),
             ),

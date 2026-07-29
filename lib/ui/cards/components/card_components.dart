@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../speech_service.dart';
+import '../../../core/util/speech_util.dart';
 import '../../common/components/kokotoba_components.dart';
 
 class PhraseCard extends StatelessWidget {
@@ -25,7 +25,7 @@ class PhraseCard extends StatelessWidget {
                 SmallIconAction(
                   icon: Icons.volume_up_outlined,
                   label: '読む',
-                  onTap: () => SpeechService.speak(text),
+                  onTap: () => SpeechUtil.speak(text),
                 ),
                 const SmallIconAction(icon: Icons.edit_outlined, label: '編集'),
                 SmallIconAction(

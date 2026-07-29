@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../speech_service.dart';
+import '../../core/util/speech_util.dart';
 import '../common/components/kokotoba_components.dart';
 
 class ManualInputScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
           SizedBox(
             height: 60,
             child: FilledButton.icon(
-              onPressed: () => SpeechService.speak(controller.text),
+              onPressed: () => SpeechUtil.speak(controller.text),
               icon: const Icon(Icons.volume_up_outlined),
               label: const Text('音声で読み上げる'),
             ),
