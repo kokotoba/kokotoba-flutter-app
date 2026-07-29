@@ -6,7 +6,10 @@ void main() {
   testWidgets('ホームから主要画面へ移動できる', (tester) async {
     await tester.pumpWidget(const KokotobaApplication());
 
-    expect(find.text('ココトバ'), findsOneWidget);
+    expect(find.text('ココトバ'), findsNothing);
+    expect(find.text('あなたの言葉を、いっしょに。'), findsNothing);
+    expect(find.text('会話を開始できます'), findsNothing);
+    expect(find.text('プライバシーを大切にします'), findsNothing);
     expect(find.text('会話をはじめる'), findsOneWidget);
 
     await tester.tap(find.text('会話をはじめる'));

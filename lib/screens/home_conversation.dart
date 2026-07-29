@@ -27,35 +27,10 @@ class HomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 13,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: rose700,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Text(
-                  'こ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('ココトバ', style: Theme.of(context).textTheme.titleLarge),
-                    const Text(
-                      'あなたの言葉を、いっしょに。',
-                      style: TextStyle(color: mutedInk),
-                    ),
-                  ],
+                child: Text(
+                  'ホーム',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
               RoundIconButton(
@@ -65,13 +40,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const StatusBanner(
-            title: '会話を開始できます',
-            detail: 'マイク待機中',
-            icon: Icons.mic_none,
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Card(
             color: rose700,
             shape: RoundedRectangleBorder(
@@ -136,8 +105,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const PrivacyNotice(),
         ],
       ),
     );

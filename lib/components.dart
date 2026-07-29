@@ -184,18 +184,9 @@ class PrivacyNotice extends StatelessWidget {
           Icon(Icons.lock_outline, size: 22, color: rose700),
           SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'プライバシーを大切にします',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '会話は基本的に端末内で処理されます',
-                  style: TextStyle(color: mutedInk, fontSize: 13),
-                ),
-              ],
+            child: Text(
+              '会話は基本的に端末内で処理されます',
+              style: TextStyle(color: mutedInk, fontSize: 13),
             ),
           ),
         ],
