@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-class SpeechService {
-  SpeechService._();
+class SpeechUtil {
+  SpeechUtil._();
 
   static const _channel = MethodChannel('com.kokotoba.app/text_to_speech');
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../speech_service.dart';
+import '../../core/util/speech_util.dart';
 import '../common/components/kokotoba_components.dart';
 import '../theme/color.dart';
 
@@ -64,7 +64,7 @@ class ConfirmScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 64,
                 child: FilledButton.icon(
-                  onPressed: () => SpeechService.speak(text),
+                  onPressed: () => SpeechUtil.speak(text),
                   icon: const Icon(Icons.volume_up_outlined),
                   label: const Text('音声で読み上げる'),
                 ),
