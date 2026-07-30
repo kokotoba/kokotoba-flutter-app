@@ -1,17 +1,99 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
+import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/components/conversation_components.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/listening_screen.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/manual_input_screen.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
-class ConversationScreen extends StatelessWidget {
+enum ConversationEntry { suggestions, listening, manual }
+
+enum _ConversationPage { suggestions, listening, confirm, edit, manual }
+
+class ConversationScreen extends StatefulWidget {
   const ConversationScreen({
     super.key,
+    this.initialEntry = ConversationEntry.suggestions,
+  });
+
+  final ConversationEntry initialEntry;
+
+  @override
+  State<ConversationScreen> createState() => _ConversationScreenState();
+}
+
+class _ConversationScreenState extends State<ConversationScreen> {
+  late _ConversationPage page;
+  String selectedPhrase = '昨日から頭が痛いです';
+
+  @override
+  void initState() {
+    super.initState();
+    page = _pageForEntry(widget.initialEntry);
+  }
+
+  _ConversationPage _pageForEntry(ConversationEntry entry) {
+    return switch (entry) {
+      ConversationEntry.suggestions => _ConversationPage.suggestions,
+      ConversationEntry.listening => _ConversationPage.listening,
+      ConversationEntry.manual => _ConversationPage.manual,
+    };
+  }
+
+  void showSuggestions() {
+    setState(() => page = _ConversationPage.suggestions);
+  }
+
+  void showConfirm(String text) {
+    setState(() {
+      selectedPhrase = text;
+      page = _ConversationPage.confirm;
+    });
+  }
+
+  void showEdit() {
+    setState(() => page = _ConversationPage.edit);
+  }
+
+  void showManualInput() {
+    setState(() => page = _ConversationPage.manual);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (page) {
+      _ConversationPage.listening => ListeningScreen(
+        onBack: showSuggestions,
+        showExample: showSuggestions,
+      ),
+      _ConversationPage.suggestions => _ConversationSuggestionsView(
+        confirm: showConfirm,
+        manualInput: showManualInput,
+      ),
+      _ConversationPage.confirm => ConfirmScreen(
+        text: selectedPhrase,
+        onBack: showSuggestions,
+        onEdit: showEdit,
+      ),
+      _ConversationPage.edit => EditScreen(
+        initialText: selectedPhrase,
+        onCancel: () => setState(() => page = _ConversationPage.confirm),
+        onSave: (value) => showConfirm(value),
+      ),
+      _ConversationPage.manual => ManualInputScreen(onBack: showSuggestions),
+    };
+  }
+}
+
+class _ConversationSuggestionsView extends StatelessWidget {
+  const _ConversationSuggestionsView({
     required this.confirm,
     required this.manualInput,
   });
 
-  final VoidCallback confirm;
+  final ValueChanged<String> confirm;
   final VoidCallback manualInput;
 
   @override
@@ -40,19 +122,19 @@ class ConversationScreen extends StatelessWidget {
             text: '昨日から頭が痛いです',
             reason: '直前の会話を参考',
             recommended: true,
-            onSelect: confirm,
+            onSelect: () => confirm('昨日から頭が痛いです'),
           ),
           const SizedBox(height: 14),
           SuggestionCard(
             text: '前回より少し良くなりました',
             reason: '以前の会話を参考',
-            onSelect: confirm,
+            onSelect: () => confirm('前回より少し良くなりました'),
           ),
           const SizedBox(height: 14),
           SuggestionCard(
             text: '少し考える時間をください',
             reason: '過去によく使用',
-            onSelect: confirm,
+            onSelect: () => confirm('少し考える時間をください'),
           ),
           const SizedBox(height: 18),
           Text('すぐに伝える', style: Theme.of(context).textTheme.titleMedium),

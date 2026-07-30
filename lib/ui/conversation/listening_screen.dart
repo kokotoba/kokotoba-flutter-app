@@ -50,8 +50,6 @@ class ListeningScreen extends StatelessWidget {
           const SizedBox(height: 30),
           Column(
             children: [
-              const PrivacyNotice(),
-              const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
                 height: 60,
@@ -61,6 +59,8 @@ class ListeningScreen extends StatelessWidget {
                 ),
               ),
               TextButton(onPressed: onBack, child: const Text('聞き取りをやめる')),
+              const SizedBox(height: 14),
+              const PrivacyNotice(),
             ],
           ),
         ],
