@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/color.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class HomeAction extends StatelessWidget {
   const HomeAction({

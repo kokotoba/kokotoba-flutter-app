@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../common/components/kokotoba_components.dart';
-import '../theme/color.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.onBack});

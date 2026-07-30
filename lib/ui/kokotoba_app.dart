@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'cards/cards_screen.dart';
-import 'cards/confirm_screen.dart';
-import 'cards/edit_screen.dart';
-import 'conversation/conversation_screen.dart';
-import 'conversation/listening_screen.dart';
-import 'conversation/manual_input_screen.dart';
-import 'history/history_screen.dart';
-import 'home/home_screen.dart';
-import 'onboarding/onboarding_screen.dart';
-import 'settings/settings_screen.dart';
+import 'package:kokotoba_flutter_app/ui/cards/cards_screen.dart';
+import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
+import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/conversation_screen.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/listening_screen.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/manual_input_screen.dart';
+import 'package:kokotoba_flutter_app/ui/history/history_screen.dart';
+import 'package:kokotoba_flutter_app/ui/home/home_screen.dart';
+import 'package:kokotoba_flutter_app/ui/onboarding/onboarding_screen.dart';
+import 'package:kokotoba_flutter_app/ui/settings/settings_screen.dart';
+import 'package:kokotoba_flutter_app/core/repository/kokotoba_repositories.dart';
 
 enum AppScreen {
   home,
@@ -25,7 +26,12 @@ enum AppScreen {
 }
 
 class KokotobaApp extends StatefulWidget {
-  const KokotobaApp({super.key});
+  const KokotobaApp({
+    super.key,
+    this.repositories = const KokotobaRepositories.mock(),
+  });
+
+  final KokotobaRepositories repositories;
 
   @override
   State<KokotobaApp> createState() => _KokotobaAppState();
@@ -78,9 +84,15 @@ class _KokotobaAppState extends State<KokotobaApp> {
         confirm: () => go(AppScreen.confirm),
         manualInput: () => go(AppScreen.manual),
       ),
-      AppScreen.cards => const CardsScreen(),
-      AppScreen.history => const HistoryScreen(),
-      AppScreen.settings => const SettingsScreen(),
+      AppScreen.cards => CardsScreen(
+        repository: widget.repositories.registeredCardRepository,
+      ),
+      AppScreen.history => HistoryScreen(
+        repository: widget.repositories.conversationHistoryRepository,
+      ),
+      AppScreen.settings => SettingsScreen(
+        repository: widget.repositories.settingsRepository,
+      ),
       AppScreen.confirm => ConfirmScreen(
         text: selectedPhrase,
         onBack: () => go(AppScreen.conversation),

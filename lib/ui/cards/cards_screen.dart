@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 
-import '../common/components/kokotoba_components.dart';
-import 'components/card_components.dart';
+import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
+import 'package:kokotoba_flutter_app/core/repository/registered_card_repository.dart';
+import 'package:kokotoba_flutter_app/ui/cards/components/card_components.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class CardsScreen extends StatefulWidget {
-  const CardsScreen({super.key});
+  const CardsScreen({super.key, required this.repository});
+
+  final RegisteredCardRepository repository;
 
   @override
   State<CardsScreen> createState() => _CardsScreenState();
 }
 
 class _CardsScreenState extends State<CardsScreen> {
-  final phrases = <String>[
-    'うまく話せないため、アプリを使っています',
-    'もう一度ゆっくり話してください',
-    '少し考える時間をください',
-    'ありがとうございます',
-    '助けてください',
-  ];
+  late Future<List<RegisteredCard>> cardsFuture;
+  var cards = <RegisteredCard>[];
+  var cardsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cardsFuture = widget.repository.fetchRegisteredCards();
+  }
 
   Future<void> _addPhrase() async {
     final controller = TextEditingController();
@@ -45,7 +51,7 @@ class _CardsScreenState extends State<CardsScreen> {
     );
     controller.dispose();
     if (result != null && result.isNotEmpty) {
-      setState(() => phrases.insert(0, result));
+      setState(() => cards.insert(0, RegisteredCard(text: result)));
     }
   }
 
@@ -54,23 +60,38 @@ class _CardsScreenState extends State<CardsScreen> {
     return PageLayout(
       title: 'よく使う文章',
       subtitle: 'タップして選択できます',
-      child: ListView.separated(
-        itemCount: phrases.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return SizedBox(
-              height: 54,
-              child: FilledButton(
-                onPressed: _addPhrase,
-                child: const Text('＋  新しい文章を追加'),
-              ),
-            );
+      child: FutureBuilder<List<RegisteredCard>>(
+        future: cardsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
           }
-          final phraseIndex = index - 1;
-          return PhraseCard(
-            text: phrases[phraseIndex],
-            onDelete: () => setState(() => phrases.removeAt(phraseIndex)),
+          if (snapshot.hasError) {
+            return const Center(child: Text('登録カードを読み込めませんでした'));
+          }
+          if (!cardsLoaded) {
+            cards = List.of(snapshot.data ?? const []);
+            cardsLoaded = true;
+          }
+          return ListView.separated(
+            itemCount: cards.length + 1,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return SizedBox(
+                  height: 54,
+                  child: FilledButton(
+                    onPressed: _addPhrase,
+                    child: const Text('＋  新しい文章を追加'),
+                  ),
+                );
+              }
+              final cardIndex = index - 1;
+              return PhraseCard(
+                card: cards[cardIndex],
+                onDelete: () => setState(() => cards.removeAt(cardIndex)),
+              );
+            },
           );
         },
       ),

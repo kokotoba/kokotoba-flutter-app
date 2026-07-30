@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'color.dart';
-import 'type.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
+import 'package:kokotoba_flutter_app/ui/theme/type.dart';
 
 ThemeData kokotobaTheme() {
   final scheme = const ColorScheme.light(

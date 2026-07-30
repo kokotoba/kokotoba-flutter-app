@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'ui/kokotoba_app.dart';
-import 'ui/theme/theme.dart';
+import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
+import 'package:kokotoba_flutter_app/ui/theme/theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

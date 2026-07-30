@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../common/components/kokotoba_components.dart';
-import '../theme/color.dart';
-import 'components/home_components.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/home/components/home_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
