@@ -4,6 +4,7 @@ import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dar
 import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
 import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/components/conversation_components.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/listening_screen.dart';
@@ -114,7 +115,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
         future: conversationResultFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const DelayedLoadingIndicator();
           }
           if (snapshot.hasError || snapshot.data == null) {
             return const Center(child: Text('文章候補を読み込めませんでした'));

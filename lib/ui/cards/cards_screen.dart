@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
 import 'package:kokotoba_flutter_app/ui/cards/components/card_components.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class CardsScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _CardsScreenState extends State<CardsScreen> {
         future: cardsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const DelayedLoadingIndicator();
           }
           if (snapshot.hasError) {
             return const Center(child: Text('登録カードを読み込めませんでした'));

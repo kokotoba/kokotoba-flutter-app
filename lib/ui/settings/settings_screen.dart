@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/kokotoba_settings.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/settings/components/settings_components.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
@@ -44,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         future: settingsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const DelayedLoadingIndicator();
           }
           if (snapshot.hasError || snapshot.data == null) {
             return const Center(child: Text('設定を読み込めませんでした'));

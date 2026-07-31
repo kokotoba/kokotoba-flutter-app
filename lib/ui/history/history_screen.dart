@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_history.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/history/components/history_components.dart';
 
@@ -19,7 +20,7 @@ class HistoryScreen extends StatelessWidget {
         future: controller.fetchConversationHistories(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const DelayedLoadingIndicator();
           }
           if (snapshot.hasError) {
             return const Center(child: Text('会話履歴を読み込めませんでした'));
