@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
-import 'package:kokotoba_flutter_app/core/repository/registered_card_repository.dart';
 import 'package:kokotoba_flutter_app/ui/cards/components/card_components.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class CardsScreen extends StatefulWidget {
-  const CardsScreen({super.key, required this.repository});
+  const CardsScreen({super.key, required this.controller});
 
-  final RegisteredCardRepository repository;
+  final RegisteredCardController controller;
 
   @override
   State<CardsScreen> createState() => _CardsScreenState();
@@ -22,17 +22,17 @@ class _CardsScreenState extends State<CardsScreen> {
   @override
   void initState() {
     super.initState();
-    cardsFuture = widget.repository.fetchRegisteredCards();
+    cardsFuture = widget.controller.fetchRegisteredCards();
   }
 
   Future<void> _addPhrase() async {
-    final controller = TextEditingController();
+    final textController = TextEditingController();
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('新しい文章'),
         content: TextField(
-          controller: controller,
+          controller: textController,
           autofocus: true,
           maxLines: 3,
           decoration: const InputDecoration(hintText: 'よく使う文章を入力'),
@@ -43,13 +43,13 @@ class _CardsScreenState extends State<CardsScreen> {
             child: const Text('キャンセル'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(context, textController.text.trim()),
             child: const Text('追加'),
           ),
         ],
       ),
     );
-    controller.dispose();
+    textController.dispose();
     if (result != null && result.isNotEmpty) {
       setState(() => cards.insert(0, RegisteredCard(text: result)));
     }

@@ -1,9 +1,9 @@
+import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_history.dart';
-import 'package:kokotoba_flutter_app/core/repository/conversation_history_repository.dart';
 
-class MockConversationHistoryRepository
-    implements ConversationHistoryRepository {
-  const MockConversationHistoryRepository();
+class MockConversationHistoryController
+    implements ConversationHistoryController {
+  const MockConversationHistoryController();
 
   @override
   Future<List<ConversationHistory>> fetchConversationHistories() async {

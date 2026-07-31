@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/kokotoba_settings.dart';
-import 'package:kokotoba_flutter_app/core/repository/settings_repository.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/settings/components/settings_components.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, required this.repository});
+  const SettingsScreen({super.key, required this.controller});
 
-  final SettingsRepository repository;
+  final SettingsController controller;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -22,7 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    settingsFuture = widget.repository.fetchSettings();
+    settingsFuture = widget.controller.fetchSettings();
   }
 
   void _setInitialToggles(KokotobaSettings settings) {

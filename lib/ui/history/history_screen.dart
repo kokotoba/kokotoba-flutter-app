@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_history.dart';
-import 'package:kokotoba_flutter_app/core/repository/conversation_history_repository.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/history/components/history_components.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key, required this.repository});
+  const HistoryScreen({super.key, required this.controller});
 
-  final ConversationHistoryRepository repository;
+  final ConversationHistoryController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class HistoryScreen extends StatelessWidget {
       title: '会話の履歴',
       subtitle: '新しい順',
       child: FutureBuilder<List<ConversationHistory>>(
-        future: repository.fetchConversationHistories(),
+        future: controller.fetchConversationHistories(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());

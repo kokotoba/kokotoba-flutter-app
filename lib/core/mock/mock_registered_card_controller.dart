@@ -1,8 +1,8 @@
+import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
-import 'package:kokotoba_flutter_app/core/repository/registered_card_repository.dart';
 
-class MockRegisteredCardRepository implements RegisteredCardRepository {
-  const MockRegisteredCardRepository();
+class MockRegisteredCardController implements RegisteredCardController {
+  const MockRegisteredCardController();
 
   @override
   Future<List<RegisteredCard>> fetchRegisteredCards() async {

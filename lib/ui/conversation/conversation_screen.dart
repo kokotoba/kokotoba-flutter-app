@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
+import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
 import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
@@ -15,9 +17,11 @@ enum _ConversationPage { suggestions, listening, confirm, edit, manual }
 class ConversationScreen extends StatefulWidget {
   const ConversationScreen({
     super.key,
+    required this.controller,
     this.initialEntry = ConversationEntry.suggestions,
   });
 
+  final ConversationController controller;
   final ConversationEntry initialEntry;
 
   @override
@@ -26,12 +30,14 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   late _ConversationPage page;
-  String selectedPhrase = '昨日から頭が痛いです';
+  late final Future<ConversationResult> conversationResultFuture;
+  String selectedPhrase = '';
 
   @override
   void initState() {
     super.initState();
     page = _pageForEntry(widget.initialEntry);
+    conversationResultFuture = widget.controller.fetchConversationResult();
   }
 
   _ConversationPage _pageForEntry(ConversationEntry entry) {
@@ -69,6 +75,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         showExample: showSuggestions,
       ),
       _ConversationPage.suggestions => _ConversationSuggestionsView(
+        conversationResultFuture: conversationResultFuture,
         confirm: showConfirm,
         manualInput: showManualInput,
       ),
@@ -89,10 +96,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
 class _ConversationSuggestionsView extends StatelessWidget {
   const _ConversationSuggestionsView({
+    required this.conversationResultFuture,
     required this.confirm,
     required this.manualInput,
   });
 
+  final Future<ConversationResult> conversationResultFuture;
   final ValueChanged<String> confirm;
   final VoidCallback manualInput;
 
@@ -101,71 +110,78 @@ class _ConversationSuggestionsView extends StatelessWidget {
     return PageLayout(
       title: '会話',
       subtitle: '候補を選んでください',
-      child: ListView(
-        children: [
-          const StatusBanner(
-            title: '聞き取りました',
-            detail: '内容が違うときは修正できます',
-            icon: Icons.check_circle_outline,
-          ),
-          const SizedBox(height: 14),
-          const HeardCard(),
-          const SizedBox(height: 18),
-          Text('伝えたい文章の候補', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 3),
-          const Text(
-            '候補は参考です。選んだあとに内容を確認できます。',
-            style: TextStyle(color: mutedInk),
-          ),
-          const SizedBox(height: 14),
-          SuggestionCard(
-            text: '昨日から頭が痛いです',
-            reason: '直前の会話を参考',
-            recommended: true,
-            onSelect: () => confirm('昨日から頭が痛いです'),
-          ),
-          const SizedBox(height: 14),
-          SuggestionCard(
-            text: '前回より少し良くなりました',
-            reason: '以前の会話を参考',
-            onSelect: () => confirm('前回より少し良くなりました'),
-          ),
-          const SizedBox(height: 14),
-          SuggestionCard(
-            text: '少し考える時間をください',
-            reason: '過去によく使用',
-            onSelect: () => confirm('少し考える時間をください'),
-          ),
-          const SizedBox(height: 18),
-          Text('すぐに伝える', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: const [
-                AssistPill('うまく話せません'),
-                SizedBox(width: 8),
-                AssistPill('少し待ってください'),
-                SizedBox(width: 8),
-                AssistPill('文字で伝えます'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
+      child: FutureBuilder<ConversationResult>(
+        future: conversationResultFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || snapshot.data == null) {
+            return const Center(child: Text('文章候補を読み込めませんでした'));
+          }
+
+          final result = snapshot.data!;
+          return ListView(
             children: [
-              const CompactAction(icon: Icons.refresh, label: '聞き直す'),
-              const SizedBox(width: 10),
-              CompactAction(
-                icon: Icons.keyboard_alt_outlined,
-                label: '自分で入力',
-                onTap: manualInput,
+              const StatusBanner(
+                title: '聞き取りました',
+                detail: '内容が違うときは修正できます',
+                icon: Icons.check_circle_outline,
               ),
-              const SizedBox(width: 10),
-              const CompactAction(icon: Icons.more_horiz, label: '別の候補'),
+              const SizedBox(height: 14),
+              HeardCard(text: result.recognizedText),
+              const SizedBox(height: 18),
+              Text('伝えたい文章の候補', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 3),
+              const Text(
+                '候補は参考です。選んだあとに内容を確認できます。',
+                style: TextStyle(color: mutedInk),
+              ),
+              const SizedBox(height: 14),
+              for (final suggestion in result.suggestions) ...[
+                SuggestionCard(
+                  text: suggestion.text,
+                  reason: suggestion.reason,
+                  recommended: suggestion.recommended,
+                  onSelect: () => confirm(suggestion.text),
+                ),
+                const SizedBox(height: 14),
+              ],
+              const SizedBox(height: 18),
+              Text('すぐに伝える', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (
+                      var index = 0;
+                      index < result.quickPhrases.length;
+                      index++
+                    ) ...[
+                      if (index > 0) const SizedBox(width: 8),
+                      AssistPill(result.quickPhrases[index]),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const CompactAction(icon: Icons.refresh, label: '聞き直す'),
+                  const SizedBox(width: 10),
+                  CompactAction(
+                    icon: Icons.keyboard_alt_outlined,
+                    label: '自分で入力',
+                    onTap: manualInput,
+                  ),
+                  const SizedBox(width: 10),
+                  const CompactAction(icon: Icons.more_horiz, label: '別の候補'),
+                ],
+              ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

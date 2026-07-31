@@ -1,8 +1,8 @@
+import 'package:kokotoba_flutter_app/core/controller/settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/kokotoba_settings.dart';
-import 'package:kokotoba_flutter_app/core/repository/settings_repository.dart';
 
-class MockSettingsRepository implements SettingsRepository {
-  const MockSettingsRepository();
+class MockSettingsController implements SettingsController {
+  const MockSettingsController();
 
   @override
   Future<KokotobaSettings> fetchSettings() async {

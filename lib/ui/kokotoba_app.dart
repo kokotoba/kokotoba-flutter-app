@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:kokotoba_flutter_app/core/repository/kokotoba_repositories.dart';
+import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/conversation_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/cards_screen.dart';
 import 'package:kokotoba_flutter_app/ui/history/history_screen.dart';
@@ -12,10 +12,10 @@ enum MainTab { home, conversation, cards, history, settings }
 class KokotobaApp extends StatefulWidget {
   const KokotobaApp({
     super.key,
-    this.repositories = const KokotobaRepositories.mock(),
+    this.controllers = const KokotobaControllers.mock(),
   });
 
-  final KokotobaRepositories repositories;
+  final KokotobaControllers controllers;
 
   @override
   State<KokotobaApp> createState() => _KokotobaAppState();
@@ -59,15 +59,16 @@ class _KokotobaAppState extends State<KokotobaApp> {
       MainTab.conversation => ConversationScreen(
         key: ValueKey(conversationEntry),
         initialEntry: conversationEntry,
+        controller: widget.controllers.conversationController,
       ),
       MainTab.cards => CardsScreen(
-        repository: widget.repositories.registeredCardRepository,
+        controller: widget.controllers.registeredCardController,
       ),
       MainTab.history => HistoryScreen(
-        repository: widget.repositories.conversationHistoryRepository,
+        controller: widget.controllers.conversationHistoryController,
       ),
       MainTab.settings => SettingsScreen(
-        repository: widget.repositories.settingsRepository,
+        controller: widget.controllers.settingsController,
       ),
     };
   }
