@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/util/speech_util.dart';
-import '../common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class ManualInputScreen extends StatefulWidget {
   const ManualInputScreen({super.key, required this.onBack});

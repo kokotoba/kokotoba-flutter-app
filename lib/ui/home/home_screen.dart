@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
 
-import '../common/components/kokotoba_components.dart';
-import '../theme/color.dart';
-import 'components/home_components.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/home/components/home_components.dart';
+import 'package:kokotoba_flutter_app/ui/onboarding/onboarding_screen.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.startConversation,
     required this.manualInput,
     required this.openCards,
-    required this.openOnboarding,
   });
 
   final VoidCallback startConversation;
   final VoidCallback manualInput;
   final VoidCallback openCards;
-  final VoidCallback openOnboarding;
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  var showingOnboarding = false;
 
   @override
   Widget build(BuildContext context) {
+    if (showingOnboarding) {
+      return OnboardingScreen(
+        onBack: () => setState(() => showingOnboarding = false),
+      );
+    }
+
     return SafeArea(
       bottom: false,
       child: ListView(
@@ -36,7 +48,7 @@ class HomeScreen extends StatelessWidget {
               RoundIconButton(
                 icon: Icons.settings_outlined,
                 tooltip: '初期設定',
-                onPressed: openOnboarding,
+                onPressed: () => setState(() => showingOnboarding = true),
               ),
             ],
           ),
@@ -48,7 +60,7 @@ class HomeScreen extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              onTap: startConversation,
+              onTap: widget.startConversation,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 34,
@@ -91,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.keyboard_alt_outlined,
                   title: '文字から伝える',
                   detail: '自分で入力',
-                  onTap: manualInput,
+                  onTap: widget.manualInput,
                 ),
               ),
               const SizedBox(width: 12),
@@ -100,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.copy_outlined,
                   title: 'よく使う文章',
                   detail: 'すぐに選ぶ',
-                  onTap: openCards,
+                  onTap: widget.openCards,
                 ),
               ),
             ],

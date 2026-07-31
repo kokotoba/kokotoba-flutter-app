@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../common/components/kokotoba_components.dart';
-import '../theme/color.dart';
-import 'components/conversation_components.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/conversation/components/conversation_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class ListeningScreen extends StatelessWidget {
   const ListeningScreen({
@@ -50,8 +50,6 @@ class ListeningScreen extends StatelessWidget {
           const SizedBox(height: 30),
           Column(
             children: [
-              const PrivacyNotice(),
-              const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
                 height: 60,
@@ -61,6 +59,8 @@ class ListeningScreen extends StatelessWidget {
                 ),
               ),
               TextButton(onPressed: onBack, child: const Text('聞き取りをやめる')),
+              const SizedBox(height: 14),
+              const PrivacyNotice(),
             ],
           ),
         ],

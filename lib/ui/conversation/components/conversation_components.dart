@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/util/speech_util.dart';
-import '../../common/components/kokotoba_components.dart';
-import '../../theme/color.dart';
+import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SoundBars extends StatelessWidget {
   const SoundBars({super.key});
@@ -30,7 +30,9 @@ class SoundBars extends StatelessWidget {
 }
 
 class HeardCard extends StatelessWidget {
-  const HeardCard({super.key});
+  const HeardCard({super.key, required this.text});
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class HeardCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Text(
-                '「今日は体調はいかがですか？」',
+                '「$text」',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),

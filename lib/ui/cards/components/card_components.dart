@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/util/speech_util.dart';
-import '../../common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
+import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class PhraseCard extends StatelessWidget {
-  const PhraseCard({super.key, required this.text, required this.onDelete});
+  const PhraseCard({super.key, required this.card, required this.onDelete});
 
-  final String text;
+  final RegisteredCard card;
   final VoidCallback onDelete;
 
   @override
@@ -18,14 +19,14 @@ class PhraseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(text, style: Theme.of(context).textTheme.titleMedium),
+            Text(card.text, style: Theme.of(context).textTheme.titleMedium),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 SmallIconAction(
                   icon: Icons.volume_up_outlined,
                   label: '読む',
-                  onTap: () => SpeechUtil.speak(text),
+                  onTap: () => SpeechUtil.speak(card.text),
                 ),
                 const SmallIconAction(icon: Icons.edit_outlined, label: '編集'),
                 SmallIconAction(

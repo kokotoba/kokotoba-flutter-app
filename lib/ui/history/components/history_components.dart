@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../common/components/kokotoba_components.dart';
-import '../../theme/color.dart';
+import 'package:kokotoba_flutter_app/core/model/conversation_history.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class HistoryCard extends StatelessWidget {
-  const HistoryCard({super.key, required this.row});
+  const HistoryCard({super.key, required this.history});
 
-  final (String, String, String, String) row;
+  final ConversationHistory history;
 
   @override
   Widget build(BuildContext context) {
@@ -18,20 +19,29 @@ class HistoryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              row.$1,
+              history.time,
               style: Theme.of(
                 context,
               ).textTheme.labelLarge?.copyWith(color: rose700),
             ),
-            Text(row.$2, style: const TextStyle(color: mutedInk, fontSize: 13)),
+            Text(
+              history.place,
+              style: const TextStyle(color: mutedInk, fontSize: 13),
+            ),
             const SizedBox(height: 12),
-            Text(row.$3, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              history.summary,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
-            Text(row.$4, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(history.phrase, maxLines: 1, overflow: TextOverflow.ellipsis),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () => showMessage(context, '${row.$3}\n${row.$4}'),
+                onPressed: () => showMessage(
+                  context,
+                  '${history.summary}\n${history.phrase}',
+                ),
                 child: const Text('詳細を見る  ›'),
               ),
             ),

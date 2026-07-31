@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../core/util/speech_util.dart';
-import '../common/components/kokotoba_components.dart';
-import '../theme/color.dart';
+import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
+import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class ConfirmScreen extends StatelessWidget {
   const ConfirmScreen({
