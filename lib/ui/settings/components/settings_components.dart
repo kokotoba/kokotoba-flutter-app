@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/model/kokotoba_settings.dart';
-import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SettingsGroup extends StatelessWidget {
-  const SettingsGroup({super.key, required this.title, required this.rows});
+  const SettingsGroup({
+    super.key,
+    required this.title,
+    required this.rows,
+    required this.onRowTap,
+    this.enabled = true,
+  });
 
   final String title;
   final List<SettingRow> rows;
+  final ValueChanged<SettingRow> onRowTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +35,7 @@ class SettingsGroup extends StatelessWidget {
             children: [
               for (var i = 0; i < rows.length; i++) ...[
                 InkWell(
-                  onTap: () => showMessage(
-                    context,
-                    '${rows[i].label}: ${rows[i].value}',
-                  ),
+                  onTap: enabled ? () => onRowTap(rows[i]) : null,
                   child: Padding(
                     padding: const EdgeInsets.all(17),
                     child: Row(
@@ -71,12 +75,14 @@ class ToggleGroup extends StatelessWidget {
     required this.labels,
     required this.values,
     required this.onChanged,
+    this.enabled = true,
   });
 
   final String title;
   final List<String> labels;
   final Map<String, bool> values;
   final void Function(String, bool) onChanged;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +116,9 @@ class ToggleGroup extends StatelessWidget {
                       ),
                       Switch(
                         value: values[labels[i]]!,
-                        onChanged: (value) => onChanged(labels[i], value),
+                        onChanged: enabled
+                            ? (value) => onChanged(labels[i], value)
+                            : null,
                       ),
                     ],
                   ),

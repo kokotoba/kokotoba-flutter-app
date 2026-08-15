@@ -39,6 +39,7 @@ dependencies:
   flutter_gemma_litertlm: ^1.2.0
   path: ^1.9.1
   sqflite: ^2.4.3
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

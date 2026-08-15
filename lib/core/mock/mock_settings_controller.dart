@@ -30,4 +30,62 @@ class MockSettingsController implements SettingsController {
       ],
     );
   }
+
+  @override
+  Future<KokotobaSettings> updateSettings(KokotobaSettingsUpdate update) async {
+    final current = await fetchSettings();
+    String displayValue(String label, String value) => switch (label) {
+      '文字サイズ' => update.textSize ?? value,
+      'ボタンサイズ' => update.buttonSize ?? value,
+      'コントラスト' => update.contrast ?? value,
+      '候補表示数' =>
+        update.suggestionCount == null ? value : '${update.suggestionCount}件',
+      _ => value,
+    };
+    String voiceValue(String label, String value) => switch (label) {
+      '読み上げ速度' => update.speechRate ?? value,
+      '読み上げ音量' =>
+        update.speechVolume == null ? value : '${update.speechVolume}%',
+      '読み上げ音声' => update.speechVoice ?? value,
+      _ => value,
+    };
+    bool toggleValue(String label, bool value) => switch (label) {
+      '履歴を候補に利用' => update.useHistoryForSuggestions ?? value,
+      '位置情報を候補に利用' => update.useLocationForSuggestions ?? value,
+      '登録情報を候補に利用' => update.useProfileForSuggestions ?? value,
+      '選択後に確認画面を表示' => update.showConfirmationAfterSelection ?? value,
+      '会話履歴を保存' => update.saveConversationHistory ?? value,
+      '外部通信を利用' => update.allowExternalCommunication ?? value,
+      _ => value,
+    };
+
+    return KokotobaSettings(
+      userId: current.userId,
+      displayRows: [
+        for (final row in current.displayRows)
+          SettingRow(
+            label: row.label,
+            value: displayValue(row.label, row.value),
+          ),
+      ],
+      voiceRows: [
+        for (final row in current.voiceRows)
+          SettingRow(label: row.label, value: voiceValue(row.label, row.value)),
+      ],
+      supportToggles: [
+        for (final toggle in current.supportToggles)
+          SettingToggle(
+            label: toggle.label,
+            enabled: toggleValue(toggle.label, toggle.enabled),
+          ),
+      ],
+      privacyToggles: [
+        for (final toggle in current.privacyToggles)
+          SettingToggle(
+            label: toggle.label,
+            enabled: toggleValue(toggle.label, toggle.enabled),
+          ),
+      ],
+    );
+  }
 }
