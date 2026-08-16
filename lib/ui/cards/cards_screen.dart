@@ -5,6 +5,7 @@ import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
 import 'package:kokotoba_flutter_app/ui/cards/components/card_components.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
+import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key, required this.controller});
@@ -41,9 +42,12 @@ class _CardsScreenState extends State<CardsScreen> {
   }
 
   Future<void> _addPhrase() async {
-    final result = await showDialog<String>(
+    final result = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => const _AddPhraseDialog(),
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const _AddPhraseSheet(),
     );
     if (result == null || result.isEmpty) return;
 
@@ -132,15 +136,21 @@ class _CardsScreenState extends State<CardsScreen> {
   }
 }
 
-class _AddPhraseDialog extends StatefulWidget {
-  const _AddPhraseDialog();
+class _AddPhraseSheet extends StatefulWidget {
+  const _AddPhraseSheet();
 
   @override
-  State<_AddPhraseDialog> createState() => _AddPhraseDialogState();
+  State<_AddPhraseSheet> createState() => _AddPhraseSheetState();
 }
 
-class _AddPhraseDialogState extends State<_AddPhraseDialog> {
+class _AddPhraseSheetState extends State<_AddPhraseSheet> {
   final textController = TextEditingController();
+
+  String get phrase => textController.text.trim();
+
+  void _submit() {
+    if (phrase.isNotEmpty) Navigator.pop(context, phrase);
+  }
 
   @override
   void dispose() {
@@ -150,30 +160,192 @@ class _AddPhraseDialogState extends State<_AddPhraseDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('新しい文章'),
-      content: TextField(
-        controller: textController,
-        autofocus: true,
-        maxLines: 3,
-        maxLength: 500,
-        decoration: const InputDecoration(hintText: 'よく使う文章を入力'),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('キャンセル'),
+    final theme = Theme.of(context);
+    final length = textController.text.runes.length;
+    final canSubmit = phrase.isNotEmpty;
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         ),
-        ValueListenableBuilder<TextEditingValue>(
-          valueListenable: textController,
-          builder: (context, value, _) => FilledButton(
-            onPressed: value.text.trim().isEmpty
-                ? null
-                : () => Navigator.pop(context, value.text.trim()),
-            child: const Text('追加'),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 42,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: rose050,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.bookmark_add_outlined,
+                      color: rose700,
+                    ),
+                  ),
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('よく使う文章を登録', style: theme.textTheme.titleLarge),
+                        const SizedBox(height: 3),
+                        Text(
+                          '会話中にすぐ呼び出せる文章を保存します',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: '閉じる',
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Text('文章', style: theme.textTheme.titleMedium),
+                  const Spacer(),
+                  Text(
+                    '$length / 500',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 9),
+              TextField(
+                controller: textController,
+                autofocus: true,
+                minLines: 3,
+                maxLines: 5,
+                maxLength: 500,
+                buildCounter:
+                    (
+                      context, {
+                      required currentLength,
+                      required isFocused,
+                      required maxLength,
+                    }) => null,
+                textInputAction: TextInputAction.newline,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: '例：もう一度ゆっくりお願いします',
+                  hintStyle: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  filled: true,
+                  fillColor: softSurface,
+                  contentPadding: const EdgeInsets.all(17),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: rose700, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                child: canSubmit
+                    ? Container(
+                        key: const ValueKey('preview'),
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: rose050,
+                          borderRadius: BorderRadius.circular(17),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(
+                                  Icons.visibility_outlined,
+                                  size: 17,
+                                  color: rose700,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  '登録後のプレビュー',
+                                  style: TextStyle(
+                                    color: rose700,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(phrase, style: theme.textTheme.titleMedium),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 52,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('キャンセル'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 52,
+                      child: FilledButton.icon(
+                        onPressed: canSubmit ? _submit : null,
+                        icon: const Icon(Icons.bookmark_add_outlined),
+                        label: const Text('登録する'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

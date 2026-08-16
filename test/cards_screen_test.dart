@@ -39,7 +39,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '  自由に追加した文章  ');
     await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, '追加'));
+    expect(find.text('登録後のプレビュー'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, '登録する'));
     await tester.pumpAndSettle();
 
     expect(find.text('ありません'), findsNothing);
