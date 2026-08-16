@@ -10,10 +10,7 @@ import 'package:kokotoba_flutter_app/ui/settings/settings_screen.dart';
 enum MainTab { home, conversation, cards, history, settings }
 
 class KokotobaApp extends StatefulWidget {
-  const KokotobaApp({
-    super.key,
-    this.controllers = const KokotobaControllers.mock(),
-  });
+  const KokotobaApp({super.key, required this.controllers});
 
   final KokotobaControllers controllers;
 

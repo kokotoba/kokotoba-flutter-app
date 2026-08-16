@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
 import 'package:kokotoba_flutter_app/ui/theme/theme.dart';
 
@@ -14,11 +15,13 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const KokotobaApplication());
+  runApp(KokotobaApplication(controllers: KokotobaControllers.live()));
 }
 
 class KokotobaApplication extends StatelessWidget {
-  const KokotobaApplication({super.key});
+  const KokotobaApplication({super.key, required this.controllers});
+
+  final KokotobaControllers controllers;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class KokotobaApplication extends StatelessWidget {
       title: 'ココトバ',
       debugShowCheckedModeBanner: false,
       theme: kokotobaTheme(),
-      home: const KokotobaApp(),
+      home: KokotobaApp(controllers: controllers),
     );
   }
 }
