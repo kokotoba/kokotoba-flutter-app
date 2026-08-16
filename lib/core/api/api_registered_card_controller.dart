@@ -45,6 +45,19 @@ class ApiRegisteredCardController implements RegisteredCardController {
   }
 
   @override
+  Future<void> reorderRegisteredCards(List<int> ids) async {
+    final response = await client.put(
+      Uri.parse('$_collectionUri/order'),
+      headers: const {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'phrase_ids': ids}),
+    );
+    _requireStatus(response, 204);
+  }
+
+  @override
   Future<void> deleteRegisteredCard(int id) async {
     final response = await client.delete(
       Uri.parse('$baseUrl/api/v1/users/$userId/phrases/$id'),

@@ -54,4 +54,21 @@ void main() {
 
     await controller.deleteRegisteredCard(12);
   });
+
+  test('よく使う文章の並び順を保存する', () async {
+    final controller = ApiRegisteredCardController(
+      baseUrl: 'http://localhost:8080',
+      userId: 1,
+      client: MockClient((request) async {
+        expect(request.method, 'PUT');
+        expect(request.url.path, '/api/v1/users/1/phrases/order');
+        expect(jsonDecode(request.body), {
+          'phrase_ids': [3, 1, 2],
+        });
+        return http.Response('', 204);
+      }),
+    );
+
+    await controller.reorderRegisteredCards([3, 1, 2]);
+  });
 }

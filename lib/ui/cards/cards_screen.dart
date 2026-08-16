@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.dart';
@@ -82,11 +84,39 @@ class _CardsScreenState extends State<CardsScreen> {
     }
   }
 
+  Future<void> _reorderPhrases(int oldIndex, int newIndex) async {
+    if (saving || oldIndex == newIndex) return;
+
+    final previousOrder = List<RegisteredCard>.of(cards!);
+    final reordered = List<RegisteredCard>.of(cards!);
+    final moved = reordered.removeAt(oldIndex);
+    reordered.insert(newIndex, moved);
+    setState(() {
+      cards = reordered;
+      saving = true;
+    });
+
+    try {
+      await widget.controller.reorderRegisteredCards(
+        reordered.map((card) => card.id).toList(growable: false),
+      );
+      if (mounted) showMessage(context, '並び順を保存しました');
+    } catch (error, stackTrace) {
+      debugPrint('Failed to reorder frequent phrases: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      if (!mounted) return;
+      setState(() => cards = previousOrder);
+      showMessage(context, '並び順を保存できませんでした');
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageLayout(
       title: 'よく使う文章',
-      subtitle: 'タップして選択できます',
+      subtitle: '左端を長押しして並べ替え',
       child: _buildContent(),
     );
   }
@@ -108,29 +138,52 @@ class _CardsScreenState extends State<CardsScreen> {
       );
     }
 
-    return ListView(
+    return Column(
       children: [
-        if (saving) const LinearProgressIndicator(),
         SizedBox(
+          height: 4,
+          child: saving ? const LinearProgressIndicator() : null,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
           height: 54,
           child: FilledButton(
             onPressed: saving ? null : _addPhrase,
             child: const Text('＋  新しい文章を追加'),
           ),
         ),
+        const SizedBox(height: 12),
         if (cards!.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 72),
-            child: Center(child: Text('ありません')),
-          )
+          const Expanded(child: Center(child: Text('ありません')))
         else
-          for (final card in cards!) ...[
-            const SizedBox(height: 12),
-            PhraseCard(
-              card: card,
-              onDelete: saving ? null : () => _deletePhrase(card),
+          Expanded(
+            child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              itemCount: cards!.length,
+              onReorderItem: (oldIndex, newIndex) {
+                unawaited(_reorderPhrases(oldIndex, newIndex));
+              },
+              proxyDecorator: (child, index, animation) => Material(
+                color: Colors.transparent,
+                elevation: 7,
+                borderRadius: BorderRadius.circular(20),
+                child: child,
+              ),
+              itemBuilder: (context, index) {
+                final card = cards![index];
+                return Padding(
+                  key: ValueKey(card.id),
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: PhraseCard(
+                    card: card,
+                    reorderIndex: saving ? null : index,
+                    onDelete: saving ? null : () => _deletePhrase(card),
+                  ),
+                );
+              },
             ),
-          ],
+          ),
       ],
     );
   }

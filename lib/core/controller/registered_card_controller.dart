@@ -5,5 +5,7 @@ abstract interface class RegisteredCardController {
 
   Future<RegisteredCard> createRegisteredCard(String text);
 
+  Future<void> reorderRegisteredCards(List<int> ids);
+
   Future<void> deleteRegisteredCard(int id);
 }

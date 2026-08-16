@@ -24,5 +24,8 @@ class MockRegisteredCardController implements RegisteredCardController {
   }
 
   @override
+  Future<void> reorderRegisteredCards(List<int> ids) async {}
+
+  @override
   Future<void> deleteRegisteredCard(int id) async {}
 }
