@@ -1,3 +1,4 @@
+import 'package:kokotoba_flutter_app/core/api/api_registered_card_controller.dart';
 import 'package:kokotoba_flutter_app/core/api/api_settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
@@ -31,7 +32,10 @@ class KokotobaControllers {
   }) {
     return KokotobaControllers(
       conversationController: const MockConversationController(),
-      registeredCardController: const MockRegisteredCardController(),
+      registeredCardController: ApiRegisteredCardController(
+        baseUrl: apiBaseUrl,
+        userId: userId,
+      ),
       conversationHistoryController: const MockConversationHistoryController(),
       settingsController: ApiSettingsController(
         baseUrl: apiBaseUrl,

@@ -8,7 +8,7 @@ class PhraseCard extends StatelessWidget {
   const PhraseCard({super.key, required this.card, required this.onDelete});
 
   final RegisteredCard card;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {

@@ -15,6 +15,8 @@ flutter run
 `kokotoba-infra` と `kokotoba-backend` を起動してください。
 表示・音声設定の選択と各スイッチの変更は、バックエンドのPATCH APIを通じて
 `user_settings` テーブルへ保存されます。
+よく使う文章もユーザーID `1` に紐づけて取得・追加・削除し、
+`frequent_phrases` テーブルへ保存されます。
 
 iOS Simulator / macOSでは既定の接続先を利用できます。
 

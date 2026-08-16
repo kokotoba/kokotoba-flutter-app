@@ -7,11 +7,22 @@ class MockRegisteredCardController implements RegisteredCardController {
   @override
   Future<List<RegisteredCard>> fetchRegisteredCards() async {
     return const [
-      RegisteredCard(text: 'うまく話せないため、アプリを使っています'),
-      RegisteredCard(text: 'もう一度ゆっくり話してください'),
-      RegisteredCard(text: '少し考える時間をください'),
-      RegisteredCard(text: 'ありがとうございます'),
-      RegisteredCard(text: '助けてください'),
+      RegisteredCard(id: 1, text: 'うまく話せないため、アプリを使っています'),
+      RegisteredCard(id: 2, text: 'もう一度ゆっくり話してください'),
+      RegisteredCard(id: 3, text: '少し考える時間をください'),
+      RegisteredCard(id: 4, text: 'ありがとうございます'),
+      RegisteredCard(id: 5, text: '助けてください'),
     ];
   }
+
+  @override
+  Future<RegisteredCard> createRegisteredCard(String text) async {
+    return RegisteredCard(
+      id: DateTime.now().microsecondsSinceEpoch,
+      text: text,
+    );
+  }
+
+  @override
+  Future<void> deleteRegisteredCard(int id) async {}
 }

@@ -19,10 +19,7 @@ void main() {
 }
 
 class KokotobaApplication extends StatelessWidget {
-  const KokotobaApplication({
-    super.key,
-    this.controllers = const KokotobaControllers.mock(),
-  });
+  const KokotobaApplication({super.key, required this.controllers});
 
   final KokotobaControllers controllers;
 
