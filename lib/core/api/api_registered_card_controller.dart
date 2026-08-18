@@ -5,17 +5,13 @@ import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.
 import 'package:kokotoba_flutter_app/core/model/registered_card.dart';
 
 class ApiRegisteredCardController implements RegisteredCardController {
-  ApiRegisteredCardController({
-    required this.baseUrl,
-    this.userId = 1,
-    http.Client? client,
-  }) : client = client ?? http.Client();
+  ApiRegisteredCardController({required this.baseUrl, http.Client? client})
+    : client = client ?? http.Client();
 
   final String baseUrl;
-  final int userId;
   final http.Client client;
 
-  Uri get _collectionUri => Uri.parse('$baseUrl/api/v1/users/$userId/phrases');
+  Uri get _collectionUri => Uri.parse('$baseUrl/api/v1/me/phrases');
 
   @override
   Future<List<RegisteredCard>> fetchRegisteredCards() async {
@@ -60,7 +56,7 @@ class ApiRegisteredCardController implements RegisteredCardController {
   @override
   Future<void> deleteRegisteredCard(int id) async {
     final response = await client.delete(
-      Uri.parse('$baseUrl/api/v1/users/$userId/phrases/$id'),
+      Uri.parse('$baseUrl/api/v1/me/phrases/$id'),
     );
     _requireStatus(response, 204);
   }

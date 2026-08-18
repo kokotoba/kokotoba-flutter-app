@@ -10,7 +10,6 @@ void main() {
     Uri? requestedUri;
     final controller = ApiSettingsController(
       baseUrl: 'http://localhost:8080',
-      userId: 7,
       get: (uri, {headers}) async {
         requestedUri = uri;
         return http.Response.bytes(
@@ -31,10 +30,7 @@ void main() {
 
     final settings = await controller.fetchSettings();
 
-    expect(
-      requestedUri.toString(),
-      'http://localhost:8080/api/v1/users/7/settings',
-    );
+    expect(requestedUri.toString(), 'http://localhost:8080/api/v1/me/settings');
     expect(settings.userId, 7);
     expect(settings.displayRows.single.value, '大きい');
     expect(settings.supportToggles.single.enabled, isTrue);
@@ -64,7 +60,6 @@ void main() {
     Map<String, dynamic>? requestBody;
     final controller = ApiSettingsController(
       baseUrl: 'http://localhost:8080',
-      userId: 1,
       patch: (uri, {headers, body, encoding}) async {
         requestedUri = uri;
         requestBody = jsonDecode(body! as String) as Map<String, dynamic>;
@@ -91,10 +86,7 @@ void main() {
       ),
     );
 
-    expect(
-      requestedUri.toString(),
-      'http://localhost:8080/api/v1/users/1/settings',
-    );
+    expect(requestedUri.toString(), 'http://localhost:8080/api/v1/me/settings');
     expect(requestBody, {
       'speech_volume': 70,
       'use_history_for_suggestions': false,

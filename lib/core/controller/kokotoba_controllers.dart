@@ -28,19 +28,14 @@ class KokotobaControllers {
       'API_BASE_URL',
       defaultValue: 'http://localhost:8080',
     ),
-    int userId = 1,
   }) {
     return KokotobaControllers(
       conversationController: const MockConversationController(),
       registeredCardController: ApiRegisteredCardController(
         baseUrl: apiBaseUrl,
-        userId: userId,
       ),
       conversationHistoryController: const MockConversationHistoryController(),
-      settingsController: ApiSettingsController(
-        baseUrl: apiBaseUrl,
-        userId: userId,
-      ),
+      settingsController: ApiSettingsController(baseUrl: apiBaseUrl),
     );
   }
 
