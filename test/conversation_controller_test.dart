@@ -129,5 +129,12 @@ void main() {
 
     expect(speech.canceled, isTrue);
     expect(find.text('文字から伝える'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('戻る'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('聞き取りを開始'), findsOneWidget);
+    expect(find.text('聞き取りを始める'), findsOneWidget);
+    expect(find.text('「テスト用の認識結果」'), findsNothing);
   });
 }

@@ -109,7 +109,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         onCancel: () => setState(() => page = _ConversationPage.confirm),
         onSave: (value) => showConfirm(value),
       ),
-      _ConversationPage.manual => ManualInputScreen(onBack: showSuggestions),
+      _ConversationPage.manual => ManualInputScreen(onBack: showListening),
     };
   }
 }
