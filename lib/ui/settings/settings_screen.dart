@@ -215,20 +215,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           enabled: !saving,
           onChanged: _changeToggle,
         ),
-        const SizedBox(height: 20),
-        Card(
-          color: rose050,
-          child: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.lock_outline, color: rose700, size: 25),
-                SizedBox(width: 12),
-                Expanded(child: Text('音声認識と文章候補は、基本的に端末内で処理されます。')),
-              ],
-            ),
-          ),
-        ),
       ],
     );
   }

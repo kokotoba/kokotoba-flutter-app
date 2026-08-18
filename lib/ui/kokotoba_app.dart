@@ -34,7 +34,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
     setState(() {
       selectedTab = tab;
       if (tab == MainTab.conversation) {
-        conversationEntry = ConversationEntry.suggestions;
+        conversationEntry = ConversationEntry.listening;
       }
     });
   }
@@ -57,6 +57,8 @@ class _KokotobaAppState extends State<KokotobaApp> {
         key: ValueKey(conversationEntry),
         initialEntry: conversationEntry,
         controller: widget.controllers.conversationController,
+        speechRecognitionController:
+            widget.controllers.speechRecognitionController,
       ),
       MainTab.cards => CardsScreen(
         controller: widget.controllers.registeredCardController,

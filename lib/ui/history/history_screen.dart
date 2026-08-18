@@ -27,12 +27,10 @@ class HistoryScreen extends StatelessWidget {
           }
           final histories = snapshot.data ?? const <ConversationHistory>[];
           return ListView.separated(
-            itemCount: histories.length + 1,
+            itemCount: histories.length,
             separatorBuilder: (_, _) => const SizedBox(height: 14),
-            itemBuilder: (context, index) {
-              if (index == 0) return const PrivacyNotice();
-              return HistoryCard(history: histories[index - 1]);
-            },
+            itemBuilder: (context, index) =>
+                HistoryCard(history: histories[index]),
           );
         },
       ),

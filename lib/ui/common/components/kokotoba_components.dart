@@ -56,7 +56,6 @@ class PageLayout extends StatelessWidget {
                     ],
                   ),
                 ),
-                const PrivacyBadge(),
               ],
             ),
           ),
@@ -91,32 +90,6 @@ class RoundIconButton extends StatelessWidget {
         minimumSize: const Size(44, 44),
         backgroundColor: softSurface,
         foregroundColor: ink,
-      ),
-    );
-  }
-}
-
-class PrivacyBadge extends StatelessWidget {
-  const PrivacyBadge({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: softSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.lock_outline, size: 15, color: rose700),
-          SizedBox(width: 5),
-          Text(
-            '端末内',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-        ],
       ),
     );
   }
@@ -159,34 +132,6 @@ class StatusBanner extends StatelessWidget {
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
                 Text(detail, style: const TextStyle(color: mutedInk)),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PrivacyNotice extends StatelessWidget {
-  const PrivacyNotice({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        border: Border.all(color: outline),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.lock_outline, size: 22, color: rose700),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '会話は基本的に端末内で処理されます',
-              style: TextStyle(color: mutedInk, fontSize: 13),
             ),
           ),
         ],

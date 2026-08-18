@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
+import 'package:kokotoba_flutter_app/core/controller/speech_recognition_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
 import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
@@ -19,10 +20,12 @@ class ConversationScreen extends StatefulWidget {
   const ConversationScreen({
     super.key,
     required this.controller,
+    required this.speechRecognitionController,
     this.initialEntry = ConversationEntry.suggestions,
   });
 
   final ConversationController controller;
+  final SpeechRecognitionController speechRecognitionController;
   final ConversationEntry initialEntry;
 
   @override
@@ -33,6 +36,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   late _ConversationPage page;
   late final Future<ConversationResult> conversationResultFuture;
   String selectedPhrase = '';
+  String? recognizedText;
 
   @override
   void initState() {
@@ -51,6 +55,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void showSuggestions() {
     setState(() => page = _ConversationPage.suggestions);
+  }
+
+  void showRecognizedSuggestions(String text) {
+    setState(() {
+      recognizedText = text;
+      page = _ConversationPage.suggestions;
+    });
+  }
+
+  void showListening() {
+    setState(() => page = _ConversationPage.listening);
   }
 
   void showConfirm(String text) {
@@ -73,12 +88,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
     return switch (page) {
       _ConversationPage.listening => ListeningScreen(
         onBack: showSuggestions,
-        showExample: showSuggestions,
+        speechRecognitionController: widget.speechRecognitionController,
+        onRecognized: showRecognizedSuggestions,
+        showManualInput: showManualInput,
       ),
       _ConversationPage.suggestions => _ConversationSuggestionsView(
         conversationResultFuture: conversationResultFuture,
         confirm: showConfirm,
         manualInput: showManualInput,
+        listenAgain: showListening,
+        recognizedText: recognizedText,
       ),
       _ConversationPage.confirm => ConfirmScreen(
         text: selectedPhrase,
@@ -100,11 +119,15 @@ class _ConversationSuggestionsView extends StatelessWidget {
     required this.conversationResultFuture,
     required this.confirm,
     required this.manualInput,
+    required this.listenAgain,
+    this.recognizedText,
   });
 
   final Future<ConversationResult> conversationResultFuture;
   final ValueChanged<String> confirm;
   final VoidCallback manualInput;
+  final VoidCallback listenAgain;
+  final String? recognizedText;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +153,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
                 icon: Icons.check_circle_outline,
               ),
               const SizedBox(height: 14),
-              HeardCard(text: result.recognizedText),
+              HeardCard(text: recognizedText ?? result.recognizedText),
               const SizedBox(height: 18),
               Text('伝えたい文章の候補', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 3),
@@ -169,7 +192,11 @@ class _ConversationSuggestionsView extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  const CompactAction(icon: Icons.refresh, label: '聞き直す'),
+                  CompactAction(
+                    icon: Icons.refresh,
+                    label: '聞き直す',
+                    onTap: listenAgain,
+                  ),
                   const SizedBox(width: 10),
                   CompactAction(
                     icon: Icons.keyboard_alt_outlined,
