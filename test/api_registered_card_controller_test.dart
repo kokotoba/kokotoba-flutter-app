@@ -9,10 +9,9 @@ void main() {
   test('空のよく使う文章一覧を取得する', () async {
     final controller = ApiRegisteredCardController(
       baseUrl: 'http://localhost:8080',
-      userId: 1,
       client: MockClient((request) async {
         expect(request.method, 'GET');
-        expect(request.url.path, '/api/v1/users/1/phrases');
+        expect(request.url.path, '/api/v1/me/phrases');
         return http.Response('{"phrases":[]}', 200);
       }),
     );
@@ -23,7 +22,6 @@ void main() {
   test('自由入力した文章を追加する', () async {
     final controller = ApiRegisteredCardController(
       baseUrl: 'http://localhost:8080',
-      userId: 1,
       client: MockClient((request) async {
         expect(request.method, 'POST');
         expect(jsonDecode(request.body), {'text': 'ゆっくりお願いします'});
@@ -44,10 +42,9 @@ void main() {
   test('登録済みの文章を削除する', () async {
     final controller = ApiRegisteredCardController(
       baseUrl: 'http://localhost:8080',
-      userId: 1,
       client: MockClient((request) async {
         expect(request.method, 'DELETE');
-        expect(request.url.path, '/api/v1/users/1/phrases/12');
+        expect(request.url.path, '/api/v1/me/phrases/12');
         return http.Response('', 204);
       }),
     );
@@ -58,10 +55,9 @@ void main() {
   test('よく使う文章の並び順を保存する', () async {
     final controller = ApiRegisteredCardController(
       baseUrl: 'http://localhost:8080',
-      userId: 1,
       client: MockClient((request) async {
         expect(request.method, 'PUT');
-        expect(request.url.path, '/api/v1/users/1/phrases/order');
+        expect(request.url.path, '/api/v1/me/phrases/order');
         expect(jsonDecode(request.body), {
           'phrase_ids': [3, 1, 2],
         });

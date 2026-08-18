@@ -16,20 +16,15 @@ typedef HttpPatch =
     });
 
 class ApiSettingsController implements SettingsController {
-  ApiSettingsController({
-    required this.baseUrl,
-    this.userId = 1,
-    HttpGet? get,
-    HttpPatch? patch,
-  }) : get = get ?? http.get,
-       patch = patch ?? http.patch;
+  ApiSettingsController({required this.baseUrl, HttpGet? get, HttpPatch? patch})
+    : get = get ?? http.get,
+      patch = patch ?? http.patch;
 
   final String baseUrl;
-  final int userId;
   final HttpGet get;
   final HttpPatch patch;
 
-  Uri get _settingsUri => Uri.parse('$baseUrl/api/v1/users/$userId/settings');
+  Uri get _settingsUri => Uri.parse('$baseUrl/api/v1/me/settings');
 
   @override
   Future<KokotobaSettings> fetchSettings() async {
