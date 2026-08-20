@@ -5,10 +5,10 @@ class MockConversationController implements ConversationController {
   const MockConversationController();
 
   @override
-  Future<ConversationResult> fetchConversationResult() async {
-    return const ConversationResult(
-      recognizedText: '今日は体調はいかがですか？',
-      suggestions: [
+  Future<ConversationResult> fetchConversationResult(String question) async {
+    return ConversationResult(
+      recognizedText: question.isEmpty ? '今日は体調はいかがですか？' : question,
+      suggestions: const [
         ConversationSuggestion(
           text: '昨日から頭が痛いです',
           reason: '直前の会話を参考',
@@ -17,7 +17,7 @@ class MockConversationController implements ConversationController {
         ConversationSuggestion(text: '前回より少し良くなりました', reason: '以前の会話を参考'),
         ConversationSuggestion(text: '少し考える時間をください', reason: '過去によく使用'),
       ],
-      quickPhrases: ['うまく話せません', '少し待ってください', '文字で伝えます'],
+      quickPhrases: const ['うまく話せません', '少し待ってください', '文字で伝えます'],
     );
   }
 }

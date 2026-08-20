@@ -42,7 +42,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void initState() {
     super.initState();
     page = _pageForEntry(widget.initialEntry);
-    conversationResultFuture = widget.controller.fetchConversationResult();
+    conversationResultFuture = widget.controller.fetchConversationResult('');
   }
 
   _ConversationPage _pageForEntry(ConversationEntry entry) {
