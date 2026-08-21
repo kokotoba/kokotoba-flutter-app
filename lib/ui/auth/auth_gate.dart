@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/auth/auth_service.dart';
+import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/ui/auth/login_screen.dart';
 import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
 
 class AuthGate extends StatelessWidget {
-  const AuthGate({super.key, required this.authService});
+  const AuthGate({
+    super.key,
+    required this.authService,
+    this.controllers = const KokotobaControllers.mock(),
+  });
 
   final AuthService authService;
+  final KokotobaControllers controllers;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +28,7 @@ class AuthGate extends StatelessWidget {
         if (user == null) return LoginScreen(authService: authService);
 
         return KokotobaApp(
+          controllers: controllers,
           authUser: user,
           onSignOut: authService.signOut,
           onSendEmailVerification: authService.sendEmailVerification,

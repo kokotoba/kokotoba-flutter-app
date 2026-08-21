@@ -1,3 +1,5 @@
+import 'package:kokotoba_flutter_app/core/api/api_registered_card_controller.dart';
+import 'package:kokotoba_flutter_app/core/api/api_settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/registered_card_controller.dart';
@@ -20,6 +22,22 @@ class KokotobaControllers {
       registeredCardController = const MockRegisteredCardController(),
       conversationHistoryController = const MockConversationHistoryController(),
       settingsController = const MockSettingsController();
+
+  factory KokotobaControllers.live({
+    String apiBaseUrl = const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://localhost:8080',
+    ),
+  }) {
+    return KokotobaControllers(
+      conversationController: const MockConversationController(),
+      registeredCardController: ApiRegisteredCardController(
+        baseUrl: apiBaseUrl,
+      ),
+      conversationHistoryController: const MockConversationHistoryController(),
+      settingsController: ApiSettingsController(baseUrl: apiBaseUrl),
+    );
+  }
 
   final ConversationController conversationController;
   final RegisteredCardController registeredCardController;

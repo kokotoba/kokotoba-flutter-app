@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/main.dart';
 
 void main() {
   testWidgets('ホームから主要画面へ移動できる', (tester) async {
-    await tester.pumpWidget(const KokotobaApplication());
+    await tester.pumpWidget(
+      const KokotobaApplication(controllers: KokotobaControllers.mock()),
+    );
 
     expect(find.text('ココトバ'), findsNothing);
     expect(find.text('あなたの言葉を、いっしょに。'), findsNothing);
@@ -22,7 +25,9 @@ void main() {
   });
 
   testWidgets('ボトムナビゲーションで設定を開ける', (tester) async {
-    await tester.pumpWidget(const KokotobaApplication());
+    await tester.pumpWidget(
+      const KokotobaApplication(controllers: KokotobaControllers.mock()),
+    );
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
     await tester.pumpAndSettle();

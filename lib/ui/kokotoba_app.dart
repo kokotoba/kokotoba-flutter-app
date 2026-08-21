@@ -13,7 +13,7 @@ enum MainTab { home, conversation, cards, history, settings }
 class KokotobaApp extends StatefulWidget {
   const KokotobaApp({
     super.key,
-    this.controllers = const KokotobaControllers.mock(),
+    required this.controllers,
     this.authUser,
     this.onSignOut,
     this.onSendEmailVerification,

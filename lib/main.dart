@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:kokotoba_flutter_app/core/auth/auth_service.dart';
 import 'package:kokotoba_flutter_app/core/auth/firebase_auth_service.dart';
+import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/ui/auth/auth_gate.dart';
 import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
 import 'package:kokotoba_flutter_app/ui/theme/theme.dart';
@@ -19,12 +20,18 @@ Future<void> main() async {
     ),
   );
   await Firebase.initializeApp();
-  runApp(KokotobaApplication(authService: FirebaseAuthService()));
+  runApp(
+    KokotobaApplication(
+      controllers: KokotobaControllers.live(),
+      authService: FirebaseAuthService(),
+    ),
+  );
 }
 
 class KokotobaApplication extends StatelessWidget {
-  const KokotobaApplication({super.key, this.authService});
+  const KokotobaApplication({super.key, required this.controllers, this.authService});
 
+  final KokotobaControllers controllers;
   final AuthService? authService;
 
   @override
@@ -34,8 +41,8 @@ class KokotobaApplication extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: kokotobaTheme(),
       home: authService == null
-          ? const KokotobaApp()
-          : AuthGate(authService: authService!),
+          ? KokotobaApp(controllers: controllers)
+          : AuthGate(authService: authService!, controllers: controllers),
     );
   }
 }
