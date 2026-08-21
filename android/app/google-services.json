@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "124892041690",
+    "project_id": "kokotoba-1b827",
+    "storage_bucket": "kokotoba-1b827.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124892041690:android:4f4534bdfe8a0de85030e3",
+        "android_client_info": {
+          "package_name": "com.kokotoba.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124892041690-uotk4efhuboalo0l6uv0th6394svn52p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kokotoba.app",
+            "certificate_hash": "0d696f5676ebdf896a03c4216bec4ebd1d35b592"
+          }
+        },
+        {
+          "client_id": "124892041690-lga0ffn51it066rvr090gv8a79efnj4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbkZZoJZqvR_WEik2hb03LWH11TP39rvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124892041690-lga0ffn51it066rvr090gv8a79efnj4r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124892041690-ih8fceqmdkbebnadletb3qli2dkvq470.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kokotoba.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
