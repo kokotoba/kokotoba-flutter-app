@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:kokotoba_flutter_app/core/auth/auth_service.dart';
+import 'package:kokotoba_flutter_app/core/auth/firebase_auth_service.dart';
+import 'package:kokotoba_flutter_app/ui/auth/auth_gate.dart';
 import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
 import 'package:kokotoba_flutter_app/ui/theme/theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -14,11 +18,14 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const KokotobaApplication());
+  await Firebase.initializeApp();
+  runApp(KokotobaApplication(authService: FirebaseAuthService()));
 }
 
 class KokotobaApplication extends StatelessWidget {
-  const KokotobaApplication({super.key});
+  const KokotobaApplication({super.key, this.authService});
+
+  final AuthService? authService;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,9 @@ class KokotobaApplication extends StatelessWidget {
       title: 'ココトバ',
       debugShowCheckedModeBanner: false,
       theme: kokotobaTheme(),
-      home: const KokotobaApp(),
+      home: authService == null
+          ? const KokotobaApp()
+          : AuthGate(authService: authService!),
     );
   }
 }

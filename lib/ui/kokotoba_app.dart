@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/auth/auth_service.dart';
 import 'package:kokotoba_flutter_app/core/controller/kokotoba_controllers.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/conversation_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/cards_screen.dart';
@@ -13,9 +14,15 @@ class KokotobaApp extends StatefulWidget {
   const KokotobaApp({
     super.key,
     this.controllers = const KokotobaControllers.mock(),
+    this.authUser,
+    this.onSignOut,
+    this.onSendEmailVerification,
   });
 
   final KokotobaControllers controllers;
+  final AuthUser? authUser;
+  final Future<void> Function()? onSignOut;
+  final Future<void> Function()? onSendEmailVerification;
 
   @override
   State<KokotobaApp> createState() => _KokotobaAppState();
@@ -69,6 +76,9 @@ class _KokotobaAppState extends State<KokotobaApp> {
       ),
       MainTab.settings => SettingsScreen(
         controller: widget.controllers.settingsController,
+        authUser: widget.authUser,
+        onSignOut: widget.onSignOut,
+        onSendEmailVerification: widget.onSendEmailVerification,
       ),
     };
   }
