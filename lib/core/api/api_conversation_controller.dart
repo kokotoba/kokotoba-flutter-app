@@ -30,24 +30,48 @@ class ApiConversationController implements ConversationController {
     _requireStatus(response, 201);
 
     final json = _decode(response);
-    final cards = (json['cards'] as List<dynamic>? ?? const []);
+    final cards = json['cards'] as List<dynamic>? ?? const [];
 
     return ConversationResult(
       recognizedText: question,
-      suggestions: cards
-          .map(
-            (value) => _suggestionFromJson(value as Map<String, dynamic>),
-      )
-          .toList(growable: false),
+      suggestionId: json['id'] as String?,
+      questionType: json['question_type'] as String?,
+      suggestions: [
+        for (var index = 0; index < cards.length; index++)
+          _suggestionFromJson(
+            cards[index] as Map<String, dynamic>,
+            recommended: index == 0,
+          ),
+      ],
       quickPhrases: const ['うまく話せません', '少し待ってください', '文字で伝えます'],
     );
   }
 
-  ConversationSuggestion _suggestionFromJson(Map<String, dynamic> json) {
+  @override
+  Future<void> selectCard({
+    required String suggestionId,
+    required String cardId,
+  }) async {
+    final response = await client.post(
+      Uri.parse('$_cardSuggestionsUri/$suggestionId/selection'),
+      headers: const {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'card_id': cardId}),
+    );
+    _requireStatus(response, 200);
+  }
+
+  ConversationSuggestion _suggestionFromJson(
+      Map<String, dynamic> json, {
+        required bool recommended,
+      }) {
     return ConversationSuggestion(
+      id: json['id'] as String?,
       text: json['text'] as String? ?? '',
-      reason: json['reason'] as String? ?? 'AIが生成',
-      recommended: json['recommended'] as bool? ?? false,
+      reason: 'AIが生成した候補',
+      recommended: recommended,
     );
   }
 
