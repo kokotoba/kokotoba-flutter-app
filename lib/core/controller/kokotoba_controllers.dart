@@ -1,5 +1,6 @@
 import 'package:kokotoba_flutter_app/core/api/api_conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/api/api_registered_card_controller.dart';
+import 'package:kokotoba_flutter_app/core/api/api_session_controller.dart';
 import 'package:kokotoba_flutter_app/core/api/api_settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
@@ -53,7 +54,7 @@ class KokotobaControllers {
       ),
       conversationHistoryController: const MockConversationHistoryController(),
       settingsController: ApiSettingsController(baseUrl: apiBaseUrl),
-      sessionController: MockSessionController(),
+      sessionController: ApiSessionController(baseUrl: apiBaseUrl),
     );
   }
 
