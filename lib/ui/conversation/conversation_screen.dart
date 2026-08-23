@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
+import 'package:kokotoba_flutter_app/core/controller/session_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/speech_recognition_controller.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
+import 'package:kokotoba_flutter_app/core/model/conversation_session.dart';
 import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
@@ -21,11 +23,15 @@ class ConversationScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.speechRecognitionController,
+    required this.sessionController,
+    this.sessionId,
     this.initialEntry = ConversationEntry.suggestions,
   });
 
   final ConversationController controller;
   final SpeechRecognitionController speechRecognitionController;
+  final SessionController sessionController;
+  final String? sessionId;
   final ConversationEntry initialEntry;
 
   @override
@@ -34,7 +40,8 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   late _ConversationPage page;
-  late final Future<ConversationResult> conversationResultFuture;
+  Future<ConversationResult>? conversationResultFuture;
+  ConversationResult? latestResult;
   String selectedPhrase = '';
   String? recognizedText;
 
@@ -42,7 +49,28 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void initState() {
     super.initState();
     page = _pageForEntry(widget.initialEntry);
-    conversationResultFuture = widget.controller.fetchConversationResult('');
+    if (widget.initialEntry == ConversationEntry.suggestions) {
+      conversationResultFuture = _fetch('');
+    }
+  }
+
+  Future<ConversationResult> _fetch(String question) async {
+    final result = await widget.controller.fetchConversationResult(question);
+    latestResult = result;
+    return result;
+  }
+
+  Future<void> _record(Speaker speaker, String text) async {
+    final id = widget.sessionId;
+    if (id == null || text.trim().isEmpty) return;
+    try {
+      await widget.sessionController.recordUtterance(
+        id,
+        Utterance(speaker: speaker, text: text, spokenAt: DateTime.now()),
+      );
+    } catch (error) {
+      debugPrint('Failed to record utterance: $error');
+    }
   }
 
   _ConversationPage _pageForEntry(ConversationEntry entry) {
@@ -58,8 +86,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void showRecognizedSuggestions(String text) {
+    _record(Speaker.partner, text);
     setState(() {
       recognizedText = text;
+      conversationResultFuture = _fetch(text);
       page = _ConversationPage.suggestions;
     });
   }
@@ -69,10 +99,31 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void showConfirm(String text) {
+    _record(Speaker.user, text);
+    _selectCard(text);
     setState(() {
       selectedPhrase = text;
       page = _ConversationPage.confirm;
     });
+  }
+
+  Future<void> _selectCard(String text) async {
+    final result = latestResult;
+    final suggestionId = result?.suggestionId;
+    if (suggestionId == null) return;
+    final cardId = result?.suggestions
+        .where((suggestion) => suggestion.text == text)
+        .map((suggestion) => suggestion.id)
+        .firstOrNull;
+    if (cardId == null) return;
+    try {
+      await widget.controller.selectCard(
+        suggestionId: suggestionId,
+        cardId: cardId,
+      );
+    } catch (error) {
+      debugPrint('Failed to select card: $error');
+    }
   }
 
   void showEdit() {
@@ -123,7 +174,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
     this.recognizedText,
   });
 
-  final Future<ConversationResult> conversationResultFuture;
+  final Future<ConversationResult>? conversationResultFuture;
   final ValueChanged<String> confirm;
   final VoidCallback manualInput;
   final VoidCallback listenAgain;
@@ -137,6 +188,9 @@ class _ConversationSuggestionsView extends StatelessWidget {
       child: FutureBuilder<ConversationResult>(
         future: conversationResultFuture,
         builder: (context, snapshot) {
+          if (conversationResultFuture == null) {
+            return const Center(child: Text('まず聞き取りを始めてください'));
+          }
           if (snapshot.connectionState != ConnectionState.done) {
             return const DelayedLoadingIndicator();
           }
@@ -179,9 +233,9 @@ class _ConversationSuggestionsView extends StatelessWidget {
                 child: Row(
                   children: [
                     for (
-                      var index = 0;
-                      index < result.quickPhrases.length;
-                      index++
+                    var index = 0;
+                    index < result.quickPhrases.length;
+                    index++
                     ) ...[
                       if (index > 0) const SizedBox(width: 8),
                       AssistPill(result.quickPhrases[index]),

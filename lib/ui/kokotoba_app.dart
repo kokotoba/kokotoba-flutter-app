@@ -21,6 +21,7 @@ class KokotobaApp extends StatefulWidget {
 class _KokotobaAppState extends State<KokotobaApp> {
   MainTab selectedTab = MainTab.home;
   var conversationEntry = ConversationEntry.suggestions;
+  String? sessionId;
 
   static const destinations = [
     (MainTab.home, 'ホーム', Icons.home_outlined, Icons.home),
@@ -30,6 +31,18 @@ class _KokotobaAppState extends State<KokotobaApp> {
     (MainTab.settings, '設定', Icons.settings_outlined, Icons.settings),
   ];
 
+  Future<void> _ensureSession() async {
+    if (sessionId != null) return;
+    try {
+      final session = await widget.controllers.sessionController
+          .startOrResumeSession();
+      if (!mounted) return;
+      setState(() => sessionId = session.id);
+    } catch (error) {
+      debugPrint('Failed to start session: $error');
+    }
+  }
+
   void selectTab(MainTab tab) {
     setState(() {
       selectedTab = tab;
@@ -37,6 +50,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         conversationEntry = ConversationEntry.listening;
       }
     });
+    if (tab == MainTab.conversation) _ensureSession();
   }
 
   void openConversation(ConversationEntry entry) {
@@ -44,6 +58,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
       selectedTab = MainTab.conversation;
       conversationEntry = entry;
     });
+    _ensureSession();
   }
 
   Widget get currentScreen {
@@ -58,7 +73,9 @@ class _KokotobaAppState extends State<KokotobaApp> {
         initialEntry: conversationEntry,
         controller: widget.controllers.conversationController,
         speechRecognitionController:
-            widget.controllers.speechRecognitionController,
+        widget.controllers.speechRecognitionController,
+        sessionController: widget.controllers.sessionController,
+        sessionId: sessionId,
       ),
       MainTab.cards => CardsScreen(
         controller: widget.controllers.registeredCardController,
@@ -84,7 +101,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         bottomNavigationBar: NavigationBar(
           backgroundColor: Colors.white,
           selectedIndex: destinations.indexWhere(
-            (destination) => destination.$1 == selectedTab,
+                (destination) => destination.$1 == selectedTab,
           ),
           onDestinationSelected: (index) => selectTab(destinations[index].$1),
           destinations: [
