@@ -6,7 +6,7 @@ import 'package:kokotoba_flutter_app/core/model/conversation_session.dart';
 
 class ApiSessionController implements SessionController {
   ApiSessionController({required this.baseUrl, http.Client? client})
-      : client = client ?? http.Client();
+    : client = client ?? http.Client();
 
   final String baseUrl;
   final http.Client client;

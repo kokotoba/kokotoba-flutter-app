@@ -73,7 +73,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         initialEntry: conversationEntry,
         controller: widget.controllers.conversationController,
         speechRecognitionController:
-        widget.controllers.speechRecognitionController,
+            widget.controllers.speechRecognitionController,
         sessionController: widget.controllers.sessionController,
         sessionId: sessionId,
       ),
@@ -101,7 +101,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         bottomNavigationBar: NavigationBar(
           backgroundColor: Colors.white,
           selectedIndex: destinations.indexWhere(
-                (destination) => destination.$1 == selectedTab,
+            (destination) => destination.$1 == selectedTab,
           ),
           onDestinationSelected: (index) => selectTab(destinations[index].$1),
           destinations: [

@@ -6,7 +6,7 @@ import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
 
 class ApiConversationController implements ConversationController {
   ApiConversationController({required this.baseUrl, http.Client? client})
-      : client = client ?? http.Client();
+    : client = client ?? http.Client();
 
   final String baseUrl;
   final http.Client client;
@@ -64,9 +64,9 @@ class ApiConversationController implements ConversationController {
   }
 
   ConversationSuggestion _suggestionFromJson(
-      Map<String, dynamic> json, {
-        required bool recommended,
-      }) {
+    Map<String, dynamic> json, {
+    required bool recommended,
+  }) {
     return ConversationSuggestion(
       id: json['id'] as String?,
       text: json['text'] as String? ?? '',

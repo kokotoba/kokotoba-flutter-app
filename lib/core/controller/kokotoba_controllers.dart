@@ -27,12 +27,12 @@ class KokotobaControllers {
   });
 
   KokotobaControllers.mock()
-      : conversationController = const MockConversationController(),
-        speechRecognitionController = const MockSpeechRecognitionController(),
-        registeredCardController = const MockRegisteredCardController(),
-        conversationHistoryController = const MockConversationHistoryController(),
-        settingsController = const MockSettingsController(),
-        sessionController = MockSessionController();
+    : conversationController = const MockConversationController(),
+      speechRecognitionController = const MockSpeechRecognitionController(),
+      registeredCardController = const MockRegisteredCardController(),
+      conversationHistoryController = const MockConversationHistoryController(),
+      settingsController = const MockSettingsController(),
+      sessionController = MockSessionController();
 
   factory KokotobaControllers.live({
     String apiBaseUrl = const String.fromEnvironment(

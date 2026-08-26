@@ -233,9 +233,9 @@ class _ConversationSuggestionsView extends StatelessWidget {
                 child: Row(
                   children: [
                     for (
-                    var index = 0;
-                    index < result.quickPhrases.length;
-                    index++
+                      var index = 0;
+                      index < result.quickPhrases.length;
+                      index++
                     ) ...[
                       if (index > 0) const SizedBox(width: 8),
                       AssistPill(result.quickPhrases[index]),

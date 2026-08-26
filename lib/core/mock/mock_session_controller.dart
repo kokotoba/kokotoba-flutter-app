@@ -29,9 +29,8 @@ class MockSessionController implements SessionController {
   Future<void> recordUtterance(String sessionId, Utterance utterance) async {
     _replace(
       sessionId,
-          (session) => session.copyWith(
-        utterances: [...session.utterances, utterance],
-      ),
+      (session) =>
+          session.copyWith(utterances: [...session.utterances, utterance]),
     );
   }
 
@@ -43,9 +42,9 @@ class MockSessionController implements SessionController {
   }
 
   void _replace(
-      String sessionId,
-      ConversationSession Function(ConversationSession) update,
-      ) {
+    String sessionId,
+    ConversationSession Function(ConversationSession) update,
+  ) {
     final index = _sessions.indexWhere((session) => session.id == sessionId);
     if (index == -1) {
       throw StateError('セッションが見つかりません: $sessionId');
