@@ -50,6 +50,9 @@ void main() {
 
     await tester.pumpWidget(app(LoginScreen(authService: auth)));
 
+    expect(find.byKey(const ValueKey('google-logo')), findsOneWidget);
+    expect(find.text('G'), findsNothing);
+
     await tester.tap(find.widgetWithText(OutlinedButton, 'Googleで続ける'));
     await tester.pump();
     expect(auth.googleSignInCount, 1);

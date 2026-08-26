@@ -424,18 +424,13 @@ class _GoogleMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.square(
-      dimension: 25,
-      child: Center(
-        child: Text(
-          'G',
-          style: TextStyle(
-            color: Color(0xFF4285F4),
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-            height: 1,
-          ),
-        ),
+    return SizedBox.square(
+      dimension: 20,
+      child: Image.asset(
+        'assets/images/google_g_logo.png',
+        key: const ValueKey('google-logo'),
+        fit: BoxFit.contain,
+        semanticLabel: 'Google',
       ),
     );
   }
