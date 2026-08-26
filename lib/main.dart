@@ -29,7 +29,11 @@ Future<void> main() async {
 }
 
 class KokotobaApplication extends StatelessWidget {
-  const KokotobaApplication({super.key, required this.controllers, this.authService});
+  const KokotobaApplication({
+    super.key,
+    required this.controllers,
+    this.authService,
+  });
 
   final KokotobaControllers controllers;
   final AuthService? authService;
