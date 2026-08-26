@@ -17,11 +17,20 @@ void main() {
 
     await tester.tap(find.text('会話をはじめる'));
     await tester.pumpAndSettle();
-    expect(find.text('聞き取り中'), findsOneWidget);
+    expect(find.text('聞き取りを始める'), findsOneWidget);
 
-    await tester.tap(find.text('認識結果のUIを見る'));
+    await tester.tap(find.text('聞き取りを始める'));
     await tester.pumpAndSettle();
-    expect(find.text('伝えたい文章の候補'), findsOneWidget);
+    expect(find.text('聞き取りを停止'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('文字で入力する'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('文字で入力する'));
+    await tester.pumpAndSettle();
+    expect(find.text('文字から伝える'), findsOneWidget);
   });
 
   testWidgets('ボトムナビゲーションで設定を開ける', (tester) async {
