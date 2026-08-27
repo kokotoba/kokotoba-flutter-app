@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
-import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SoundBars extends StatelessWidget {
@@ -39,7 +38,7 @@ class HeardCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,20 +50,11 @@ class HeardCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
                 '「$text」',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(onPressed: () {}, child: const Text('聞き直す')),
-                TextButton(onPressed: () {}, child: const Text('修正する')),
-                TextButton(onPressed: () {}, child: const Text('無視する')),
-              ],
             ),
           ],
         ),
@@ -77,13 +67,11 @@ class SuggestionCard extends StatelessWidget {
   const SuggestionCard({
     super.key,
     required this.text,
-    required this.reason,
     required this.onSelect,
     this.recommended = false,
   });
 
   final String text;
-  final String reason;
   final VoidCallback onSelect;
   final bool recommended;
 
@@ -132,21 +120,63 @@ class SuggestionCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      reason,
-                      style: const TextStyle(color: mutedInk),
+                    child: _SuggestionAction(
+                      icon: Icons.volume_up_outlined,
+                      label: '読む',
+                      onTap: () => SpeechUtil.speak(text),
                     ),
                   ),
-                  SmallIconAction(
-                    icon: Icons.volume_up_outlined,
-                    label: '読む',
-                    onTap: () => SpeechUtil.speak(text),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: _SuggestionAction(
+                      icon: Icons.edit_outlined,
+                      label: '編集',
+                    ),
                   ),
-                  const SmallIconAction(icon: Icons.edit_outlined, label: '編集'),
-                  const SmallIconAction(icon: Icons.star_border, label: '保存'),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: _SuggestionAction(
+                      icon: Icons.star_border,
+                      label: '保存',
+                    ),
+                  ),
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionAction extends StatelessWidget {
+  const _SuggestionAction({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: TextButton.icon(
+        onPressed: onTap ?? () {},
+        icon: Icon(icon, size: 22),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          foregroundColor: rose700,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

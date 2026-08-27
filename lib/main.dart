@@ -9,6 +9,8 @@ import 'package:kokotoba_flutter_app/ui/auth/auth_gate.dart';
 import 'package:kokotoba_flutter_app/ui/kokotoba_app.dart';
 import 'package:kokotoba_flutter_app/ui/theme/theme.dart';
 
+const _authMode = String.fromEnvironment('AUTH_MODE', defaultValue: 'firebase');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
@@ -19,11 +21,14 @@ Future<void> main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  await Firebase.initializeApp();
+  final useDevAuth = _authMode == 'dev';
+  if (!useDevAuth) {
+    await Firebase.initializeApp();
+  }
   runApp(
     KokotobaApplication(
       controllers: KokotobaControllers.live(),
-      authService: FirebaseAuthService(),
+      authService: useDevAuth ? null : FirebaseAuthService(),
     ),
   );
 }
