@@ -4,9 +4,14 @@ import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 
 class ManualInputScreen extends StatefulWidget {
-  const ManualInputScreen({super.key, required this.onBack});
+  const ManualInputScreen({
+    super.key,
+    required this.onBack,
+    this.onCommunicated,
+  });
 
   final VoidCallback onBack;
+  final ValueChanged<String>? onCommunicated;
 
   @override
   State<ManualInputScreen> createState() => _ManualInputScreenState();
@@ -19,6 +24,16 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  void _useText(VoidCallback action) {
+    final text = controller.text.trim();
+    if (text.isEmpty) {
+      showMessage(context, '文章を入力してください');
+      return;
+    }
+    widget.onCommunicated?.call(text);
+    action();
   }
 
   @override
@@ -82,7 +97,8 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
           SizedBox(
             height: 60,
             child: FilledButton.icon(
-              onPressed: () => SpeechUtil.speak(controller.text),
+              onPressed: () =>
+                  _useText(() => SpeechUtil.speak(controller.text.trim())),
               icon: const Icon(Icons.volume_up_outlined),
               label: const Text('音声で読み上げる'),
             ),
@@ -91,10 +107,8 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
           SizedBox(
             height: 56,
             child: OutlinedButton(
-              onPressed: () => showMessage(
-                context,
-                controller.text.isEmpty ? '文章を入力してください' : controller.text,
-              ),
+              onPressed: () =>
+                  _useText(() => showMessage(context, controller.text.trim())),
               child: const Text('相手に画面を見せる'),
             ),
           ),

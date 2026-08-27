@@ -26,6 +26,9 @@ class HistoryScreen extends StatelessWidget {
             return const Center(child: Text('会話履歴を読み込めませんでした'));
           }
           final histories = snapshot.data ?? const <ConversationHistory>[];
+          if (histories.isEmpty) {
+            return const Center(child: Text('保存された会話履歴はありません'));
+          }
           return ListView.separated(
             itemCount: histories.length,
             separatorBuilder: (_, _) => const SizedBox(height: 14),

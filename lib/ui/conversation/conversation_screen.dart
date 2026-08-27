@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
+import 'package:kokotoba_flutter_app/core/controller/conversation_history_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/speech_recognition_controller.dart';
+import 'package:kokotoba_flutter_app/core/model/conversation_history.dart';
 import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
+import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
 import 'package:kokotoba_flutter_app/ui/cards/confirm_screen.dart';
 import 'package:kokotoba_flutter_app/ui/cards/edit_screen.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/delayed_loading_indicator.dart';
@@ -15,15 +20,19 @@ enum ConversationEntry { suggestions, listening, manual }
 
 enum _ConversationPage { suggestions, listening, confirm, edit, manual }
 
+enum _SessionChoice { resume, startNew }
+
 class ConversationScreen extends StatefulWidget {
   const ConversationScreen({
     super.key,
     required this.controller,
+    required this.historyController,
     required this.speechRecognitionController,
     this.initialEntry = ConversationEntry.suggestions,
   });
 
   final ConversationController controller;
+  final ConversationHistoryController historyController;
   final SpeechRecognitionController speechRecognitionController;
   final ConversationEntry initialEntry;
 
@@ -38,6 +47,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
   String selectedPhrase = '';
   String? recognizedText;
   SuggestionMode suggestionMode = SuggestionMode.fast;
+  Future<ConversationHistory?>? sessionFuture;
+  Future<void> historyWriteQueue = Future.value();
+  final recordedSuggestionApiSelections = <String>{};
+  final recordedSuggestionUtterances = <String>{};
 
   @override
   void initState() {
@@ -46,6 +59,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     if (widget.initialEntry == ConversationEntry.suggestions) {
       conversationResultFuture = _fetch();
     }
+    unawaited(_ensureSession());
   }
 
   Future<ConversationResult> _fetch([String question = '']) async {
@@ -70,6 +84,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void showRecognizedSuggestions(String text) {
+    _recordUtterance(ConversationSpeaker.partner, text);
     setState(() {
       recognizedText = text;
       conversationResultFuture = _fetch(text);
@@ -81,8 +96,33 @@ class _ConversationScreenState extends State<ConversationScreen> {
     setState(() => page = _ConversationPage.listening);
   }
 
+  void showSelectedSuggestion(String text) {
+    _recordSuggestionSelection(text);
+    showConfirm(text);
+  }
+
+  void speakSelectedSuggestion(String text) {
+    _recordSuggestionSelection(text);
+    unawaited(SpeechUtil.speak(text));
+  }
+
+  void _recordSuggestionSelection(String text) {
+    final result = latestResult;
+    final suggestion = result?.suggestions
+        .where((suggestion) => suggestion.text == text)
+        .firstOrNull;
+    final suggestionKey = result?.suggestionId ?? 'local';
+    final utteranceKey = '$suggestionKey:${suggestion?.id ?? text}';
+
+    if (recordedSuggestionApiSelections.add(suggestionKey)) {
+      unawaited(_selectCard(text));
+    }
+    if (recordedSuggestionUtterances.add(utteranceKey)) {
+      _recordUtterance(ConversationSpeaker.user, text);
+    }
+  }
+
   void showConfirm(String text) {
-    _selectCard(text);
     setState(() {
       selectedPhrase = text;
       page = _ConversationPage.confirm;
@@ -117,6 +157,91 @@ class _ConversationScreenState extends State<ConversationScreen> {
     setState(() => page = _ConversationPage.manual);
   }
 
+  Future<ConversationHistory?> _ensureSession() {
+    final existing = sessionFuture;
+    if (existing != null) return existing;
+    final started = _startSession();
+    sessionFuture = started;
+    return started;
+  }
+
+  Future<ConversationHistory?> _startSession() async {
+    try {
+      final session = await widget.historyController.startOrResumeSession();
+      if (session.utterances.isEmpty || !mounted) return session;
+
+      final choice = await _chooseExistingSession(session);
+      if (choice == _SessionChoice.resume) return session;
+
+      await widget.historyController.endSession(session.id);
+      return await widget.historyController.startOrResumeSession();
+    } catch (error, stackTrace) {
+      debugPrint('Failed to start conversation session: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      sessionFuture = null;
+      return null;
+    }
+  }
+
+  Future<_SessionChoice> _chooseExistingSession(
+    ConversationHistory session,
+  ) async {
+    final frameReady = Completer<void>();
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) => frameReady.complete());
+    binding.ensureVisualUpdate();
+    await frameReady.future;
+    if (!mounted) return _SessionChoice.resume;
+
+    return await showDialog<_SessionChoice>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => PopScope(
+            canPop: false,
+            child: AlertDialog(
+              icon: const Icon(Icons.history),
+              title: const Text('前の会話が残っています'),
+              content: Text(
+                '前回の${session.utterances.length}件の発言から再開しますか？'
+                ' 新しく始めても、前の会話は履歴に残ります。',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(context, _SessionChoice.startNew),
+                  child: const Text('終了して新しく始める'),
+                ),
+                FilledButton(
+                  onPressed: () =>
+                      Navigator.pop(context, _SessionChoice.resume),
+                  child: const Text('続きから再開'),
+                ),
+              ],
+            ),
+          ),
+        ) ??
+        _SessionChoice.resume;
+  }
+
+  void _recordUtterance(ConversationSpeaker speaker, String text) {
+    final normalizedText = text.trim();
+    if (normalizedText.isEmpty) return;
+    historyWriteQueue = historyWriteQueue.then((_) async {
+      try {
+        final session = await _ensureSession();
+        if (session == null) return;
+        await widget.historyController.addUtterance(
+          sessionId: session.id,
+          speaker: speaker,
+          text: normalizedText,
+        );
+      } catch (error, stackTrace) {
+        debugPrint('Failed to save conversation utterance: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return switch (page) {
@@ -132,7 +257,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
       _ConversationPage.suggestions => _ConversationSuggestionsView(
         conversationResultFuture: conversationResultFuture,
-        confirm: showConfirm,
+        confirm: showSelectedSuggestion,
+        speak: speakSelectedSuggestion,
         manualInput: showManualInput,
         listenAgain: showListening,
         recognizedText: recognizedText,
@@ -147,7 +273,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
         onCancel: () => setState(() => page = _ConversationPage.confirm),
         onSave: (value) => showConfirm(value),
       ),
-      _ConversationPage.manual => ManualInputScreen(onBack: showListening),
+      _ConversationPage.manual => ManualInputScreen(
+        onBack: showListening,
+        onCommunicated: (text) =>
+            _recordUtterance(ConversationSpeaker.user, text),
+      ),
     };
   }
 }
@@ -156,6 +286,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
   const _ConversationSuggestionsView({
     required this.conversationResultFuture,
     required this.confirm,
+    required this.speak,
     required this.manualInput,
     required this.listenAgain,
     this.recognizedText,
@@ -163,6 +294,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
 
   final Future<ConversationResult>? conversationResultFuture;
   final ValueChanged<String> confirm;
+  final ValueChanged<String> speak;
   final VoidCallback manualInput;
   final VoidCallback listenAgain;
   final String? recognizedText;
@@ -197,6 +329,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
                   text: suggestion.text,
                   recommended: suggestion.recommended,
                   onSelect: () => confirm(suggestion.text),
+                  onSpeak: () => speak(suggestion.text),
                 ),
                 const SizedBox(height: 14),
               ],
