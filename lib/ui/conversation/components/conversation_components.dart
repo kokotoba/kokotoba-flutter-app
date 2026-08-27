@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
-import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SoundBars extends StatelessWidget {
@@ -119,18 +118,65 @@ class SuggestionCard extends StatelessWidget {
               Text(text, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  SmallIconAction(
-                    icon: Icons.volume_up_outlined,
-                    label: '読む',
-                    onTap: () => SpeechUtil.speak(text),
+                  Expanded(
+                    child: _SuggestionAction(
+                      icon: Icons.volume_up_outlined,
+                      label: '読む',
+                      onTap: () => SpeechUtil.speak(text),
+                    ),
                   ),
-                  const SmallIconAction(icon: Icons.edit_outlined, label: '編集'),
-                  const SmallIconAction(icon: Icons.star_border, label: '保存'),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: _SuggestionAction(
+                      icon: Icons.edit_outlined,
+                      label: '編集',
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: _SuggestionAction(
+                      icon: Icons.star_border,
+                      label: '保存',
+                    ),
+                  ),
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionAction extends StatelessWidget {
+  const _SuggestionAction({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: TextButton.icon(
+        onPressed: onTap ?? () {},
+        icon: Icon(icon, size: 22),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          foregroundColor: rose700,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
