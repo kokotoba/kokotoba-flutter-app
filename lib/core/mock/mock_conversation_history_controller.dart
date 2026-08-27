@@ -7,25 +7,56 @@ class MockConversationHistoryController
 
   @override
   Future<List<ConversationHistory>> fetchConversationHistories() async {
-    return const [
+    return [
       ConversationHistory(
-        time: '今日  10:42',
-        place: '近くのクリニック',
-        summary: '体調と症状について話しました',
-        phrase: '「昨日から頭が痛いです」',
-      ),
-      ConversationHistory(
-        time: '7月21日  16:18',
-        place: '場所は保存されていません',
-        summary: '予定の時間について確認しました',
-        phrase: '「14時でお願いします」',
-      ),
-      ConversationHistory(
-        time: '7月18日  12:05',
-        place: '場所は保存されていません',
-        summary: '昼食について話しました',
-        phrase: '「同じものをお願いします」',
+        id: 1,
+        startedAt: _startedAt,
+        active: false,
+        utterances: [
+          ConversationUtterance(
+            id: 1,
+            speaker: ConversationSpeaker.partner,
+            text: '今日は体調はいかがですか？',
+            spokenAt: _startedAt,
+          ),
+          ConversationUtterance(
+            id: 2,
+            speaker: ConversationSpeaker.user,
+            text: '昨日から頭が痛いです',
+            spokenAt: _answeredAt,
+          ),
+        ],
       ),
     ];
   }
+
+  @override
+  Future<ConversationHistory> startOrResumeSession() async {
+    return ConversationHistory(
+      id: 1,
+      startedAt: _startedAt,
+      active: true,
+      utterances: [],
+    );
+  }
+
+  @override
+  Future<ConversationUtterance> addUtterance({
+    required int sessionId,
+    required ConversationSpeaker speaker,
+    required String text,
+  }) async {
+    return ConversationUtterance(
+      id: 1,
+      speaker: speaker,
+      text: text,
+      spokenAt: _answeredAt,
+    );
+  }
+
+  @override
+  Future<void> endSession(int sessionId) async {}
 }
+
+final _startedAt = DateTime.utc(2026, 8, 28, 10, 42);
+final _answeredAt = DateTime.utc(2026, 8, 28, 10, 43);

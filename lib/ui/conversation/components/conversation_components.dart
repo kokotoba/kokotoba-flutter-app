@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:kokotoba_flutter_app/core/util/speech_util.dart';
 import 'package:kokotoba_flutter_app/ui/theme/color.dart';
 
 class SoundBars extends StatelessWidget {
@@ -68,11 +67,13 @@ class SuggestionCard extends StatelessWidget {
     super.key,
     required this.text,
     required this.onSelect,
+    required this.onSpeak,
     this.recommended = false,
   });
 
   final String text;
   final VoidCallback onSelect;
+  final VoidCallback onSpeak;
   final bool recommended;
 
   @override
@@ -123,7 +124,7 @@ class SuggestionCard extends StatelessWidget {
                     child: _SuggestionAction(
                       icon: Icons.volume_up_outlined,
                       label: '読む',
-                      onTap: () => SpeechUtil.speak(text),
+                      onTap: onSpeak,
                     ),
                   ),
                   const SizedBox(width: 4),

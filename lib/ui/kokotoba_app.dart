@@ -67,6 +67,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         key: ValueKey(conversationEntry),
         initialEntry: conversationEntry,
         controller: widget.controllers.conversationController,
+        historyController: widget.controllers.conversationHistoryController,
         speechRecognitionController:
             widget.controllers.speechRecognitionController,
       ),
