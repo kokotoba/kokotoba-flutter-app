@@ -39,7 +39,7 @@ class HeardCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,20 +51,11 @@ class HeardCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
                 '「$text」',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(onPressed: () {}, child: const Text('聞き直す')),
-                TextButton(onPressed: () {}, child: const Text('修正する')),
-                TextButton(onPressed: () {}, child: const Text('無視する')),
-              ],
             ),
           ],
         ),
@@ -77,13 +68,11 @@ class SuggestionCard extends StatelessWidget {
   const SuggestionCard({
     super.key,
     required this.text,
-    required this.reason,
     required this.onSelect,
     this.recommended = false,
   });
 
   final String text;
-  final String reason;
   final VoidCallback onSelect;
   final bool recommended;
 
@@ -130,13 +119,8 @@ class SuggestionCard extends StatelessWidget {
               Text(text, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Text(
-                      reason,
-                      style: const TextStyle(color: mutedInk),
-                    ),
-                  ),
                   SmallIconAction(
                     icon: Icons.volume_up_outlined,
                     label: '読む',

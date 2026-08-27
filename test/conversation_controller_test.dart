@@ -19,6 +19,7 @@ class _TestConversationController implements ConversationController {
       recognizedText: 'テスト用の認識結果',
       suggestions: [
         ConversationSuggestion(text: 'テスト用の文章候補', reason: 'テストControllerから取得'),
+        ConversationSuggestion(text: '2つ目の文章候補', reason: 'テストControllerから取得'),
       ],
       quickPhrases: ['テスト用の短文'],
     );
@@ -95,7 +96,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('「テスト用の認識結果」'), findsOneWidget);
+    expect(find.text('聞き取りました'), findsNothing);
+    expect(find.text('内容が違うときは修正できます'), findsNothing);
     expect(find.text('テスト用の文章候補'), findsOneWidget);
+    expect(find.text('2つ目の文章候補').hitTestable(), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, -500));
     await tester.pumpAndSettle();
     expect(find.text('テスト用の短文'), findsOneWidget);
