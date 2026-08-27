@@ -7,8 +7,14 @@ import 'package:kokotoba_flutter_app/core/model/conversation_result.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/conversation_screen.dart';
 
 class _TestConversationController implements ConversationController {
+  final requestedModes = <SuggestionMode>[];
+
   @override
-  Future<ConversationResult> fetchConversationResult() async {
+  Future<ConversationResult> fetchConversationResult({
+    String question = '',
+    SuggestionMode mode = SuggestionMode.fast,
+  }) async {
+    requestedModes.add(mode);
     return const ConversationResult(
       recognizedText: 'テスト用の認識結果',
       suggestions: [
@@ -17,6 +23,12 @@ class _TestConversationController implements ConversationController {
       quickPhrases: ['テスト用の短文'],
     );
   }
+
+  @override
+  Future<void> selectCard({
+    required String suggestionId,
+    required String cardId,
+  }) async {}
 }
 
 class _TestSpeechRecognitionController implements SpeechRecognitionController {
@@ -59,6 +71,15 @@ class _TestSpeechRecognitionController implements SpeechRecognitionController {
 }
 
 void main() {
+  Future<void> scrollTo(WidgetTester tester, String text) async {
+    await tester.scrollUntilVisible(
+      find.text(text),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump();
+  }
+
   testWidgets('会話画面は注入されたControllerの推論結果を表示する', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -104,6 +125,7 @@ void main() {
     await tester.pump();
     expect(find.text('実際に認識した文章'), findsOneWidget);
 
+    await scrollTo(tester, '聞き取りを停止');
     await tester.tap(find.text('聞き取りを停止'));
     await tester.pumpAndSettle();
     expect(speech.stopped, isTrue);
@@ -124,6 +146,7 @@ void main() {
       ),
     );
 
+    await scrollTo(tester, '文字で入力する');
     await tester.tap(find.text('文字で入力する'));
     await tester.pumpAndSettle();
 
@@ -136,5 +159,35 @@ void main() {
     expect(find.text('聞き取りを開始'), findsOneWidget);
     expect(find.text('聞き取りを始める'), findsOneWidget);
     expect(find.text('「テスト用の認識結果」'), findsNothing);
+  });
+
+  testWidgets('高品質モードを選ぶとqualityで音声認識結果を送信する', (tester) async {
+    final conversation = _TestConversationController();
+    final speech = _TestSpeechRecognitionController();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ConversationScreen(
+            controller: conversation,
+            speechRecognitionController: speech,
+            initialEntry: ConversationEntry.listening,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('高品質'));
+    await tester.pump();
+    expect(find.text('履歴や関連情報を詳しく参照します'), findsOneWidget);
+
+    await tester.tap(find.text('聞き取りを始める'));
+    await tester.pump();
+    speech.recognize('高品質で送る文章');
+    await tester.pump();
+    await scrollTo(tester, '聞き取りを停止');
+    await tester.tap(find.text('聞き取りを停止'));
+    await tester.pumpAndSettle();
+
+    expect(conversation.requestedModes.last, SuggestionMode.quality);
   });
 }

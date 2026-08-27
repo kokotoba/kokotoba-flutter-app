@@ -1,3 +1,4 @@
+import 'package:kokotoba_flutter_app/core/api/api_conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/api/api_registered_card_controller.dart';
 import 'package:kokotoba_flutter_app/core/api/api_settings_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
@@ -33,9 +34,15 @@ class KokotobaControllers {
       'API_BASE_URL',
       defaultValue: 'http://localhost:8080',
     ),
+    String inferenceApiBaseUrl = const String.fromEnvironment(
+      'INFERENCE_API_BASE_URL',
+      defaultValue: 'http://127.0.0.1:8000',
+    ),
   }) {
     return KokotobaControllers(
-      conversationController: const MockConversationController(),
+      conversationController: ApiConversationController(
+        baseUrl: inferenceApiBaseUrl,
+      ),
       speechRecognitionController: DeviceSpeechRecognitionController(),
       registeredCardController: ApiRegisteredCardController(
         baseUrl: apiBaseUrl,

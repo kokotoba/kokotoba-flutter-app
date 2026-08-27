@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:kokotoba_flutter_app/core/controller/conversation_controller.dart';
 import 'package:kokotoba_flutter_app/core/controller/speech_recognition_controller.dart';
 import 'package:kokotoba_flutter_app/ui/common/components/kokotoba_components.dart';
 import 'package:kokotoba_flutter_app/ui/conversation/components/conversation_components.dart';
@@ -14,12 +15,16 @@ class ListeningScreen extends StatefulWidget {
     required this.speechRecognitionController,
     required this.onRecognized,
     required this.showManualInput,
+    required this.suggestionMode,
+    required this.onSuggestionModeChanged,
   });
 
   final VoidCallback onBack;
   final SpeechRecognitionController speechRecognitionController;
   final ValueChanged<String> onRecognized;
   final VoidCallback showManualInput;
+  final SuggestionMode suggestionMode;
+  final ValueChanged<SuggestionMode> onSuggestionModeChanged;
 
   @override
   State<ListeningScreen> createState() => _ListeningScreenState();
@@ -154,9 +159,41 @@ class _ListeningScreenState extends State<ListeningScreen> {
       onBack: () => unawaited(_goBack()),
       child: ListView(
         children: [
+          Text('候補生成モード', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<SuggestionMode>(
+              segments: const [
+                ButtonSegment(
+                  value: SuggestionMode.fast,
+                  icon: Icon(Icons.bolt_outlined),
+                  label: Text('高速'),
+                ),
+                ButtonSegment(
+                  value: SuggestionMode.quality,
+                  icon: Icon(Icons.auto_awesome_outlined),
+                  label: Text('高品質'),
+                ),
+              ],
+              selected: {widget.suggestionMode},
+              onSelectionChanged: busy || listening
+                  ? null
+                  : (selection) {
+                      widget.onSuggestionModeChanged(selection.first);
+                    },
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            widget.suggestionMode == SuggestionMode.fast
+                ? 'すばやく文章候補を作ります'
+                : '履歴や関連情報を詳しく参照します',
+            style: const TextStyle(color: mutedInk),
+          ),
           Column(
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 width: 152,

@@ -34,15 +34,28 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   late _ConversationPage page;
-  late final Future<ConversationResult> conversationResultFuture;
+  Future<ConversationResult>? conversationResultFuture;
+  ConversationResult? latestResult;
   String selectedPhrase = '';
   String? recognizedText;
+  SuggestionMode suggestionMode = SuggestionMode.fast;
 
   @override
   void initState() {
     super.initState();
     page = _pageForEntry(widget.initialEntry);
-    conversationResultFuture = widget.controller.fetchConversationResult();
+    if (widget.initialEntry == ConversationEntry.suggestions) {
+      conversationResultFuture = _fetch();
+    }
+  }
+
+  Future<ConversationResult> _fetch([String question = '']) async {
+    final result = await widget.controller.fetchConversationResult(
+      question: question,
+      mode: suggestionMode,
+    );
+    latestResult = result;
+    return result;
   }
 
   _ConversationPage _pageForEntry(ConversationEntry entry) {
@@ -60,6 +73,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void showRecognizedSuggestions(String text) {
     setState(() {
       recognizedText = text;
+      conversationResultFuture = _fetch(text);
       page = _ConversationPage.suggestions;
     });
   }
@@ -69,10 +83,31 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void showConfirm(String text) {
+    _selectCard(text);
     setState(() {
       selectedPhrase = text;
       page = _ConversationPage.confirm;
     });
+  }
+
+  Future<void> _selectCard(String text) async {
+    final result = latestResult;
+    final suggestionId = result?.suggestionId;
+    if (suggestionId == null) return;
+    final cardId = result?.suggestions
+        .where((suggestion) => suggestion.text == text)
+        .map((suggestion) => suggestion.id)
+        .firstOrNull;
+    if (cardId == null) return;
+
+    try {
+      await widget.controller.selectCard(
+        suggestionId: suggestionId,
+        cardId: cardId,
+      );
+    } catch (error) {
+      debugPrint('Failed to select card: $error');
+    }
   }
 
   void showEdit() {
@@ -91,6 +126,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
         speechRecognitionController: widget.speechRecognitionController,
         onRecognized: showRecognizedSuggestions,
         showManualInput: showManualInput,
+        suggestionMode: suggestionMode,
+        onSuggestionModeChanged: (mode) {
+          setState(() => suggestionMode = mode);
+        },
       ),
       _ConversationPage.suggestions => _ConversationSuggestionsView(
         conversationResultFuture: conversationResultFuture,
@@ -123,7 +162,7 @@ class _ConversationSuggestionsView extends StatelessWidget {
     this.recognizedText,
   });
 
-  final Future<ConversationResult> conversationResultFuture;
+  final Future<ConversationResult>? conversationResultFuture;
   final ValueChanged<String> confirm;
   final VoidCallback manualInput;
   final VoidCallback listenAgain;
@@ -137,6 +176,9 @@ class _ConversationSuggestionsView extends StatelessWidget {
       child: FutureBuilder<ConversationResult>(
         future: conversationResultFuture,
         builder: (context, snapshot) {
+          if (conversationResultFuture == null) {
+            return const Center(child: Text('まず聞き取りを始めてください'));
+          }
           if (snapshot.connectionState != ConnectionState.done) {
             return const DelayedLoadingIndicator();
           }
