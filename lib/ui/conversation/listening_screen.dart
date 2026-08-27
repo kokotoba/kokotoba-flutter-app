@@ -31,6 +31,8 @@ class ListeningScreen extends StatefulWidget {
 }
 
 class _ListeningScreenState extends State<ListeningScreen> {
+  final ScrollController _transcriptScrollController = ScrollController();
+
   bool initialized = false;
   bool listening = false;
   bool sessionStarted = false;
@@ -63,7 +65,7 @@ class _ListeningScreenState extends State<ListeningScreen> {
         initialized = await widget.speechRecognitionController.initialize(
           onResult: (text, _) {
             if (disposing || !mounted) return;
-            setState(() => transcript = text);
+            _updateTranscript(text);
           },
           onError: (message) {
             if (disposing || !mounted) return;
@@ -143,10 +145,21 @@ class _ListeningScreenState extends State<ListeningScreen> {
     return '音声認識でエラーが発生しました';
   }
 
+  void _updateTranscript(String text) {
+    setState(() => transcript = text);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (disposing || !_transcriptScrollController.hasClients) return;
+      _transcriptScrollController.jumpTo(
+        _transcriptScrollController.position.maxScrollExtent,
+      );
+    });
+  }
+
   @override
   void dispose() {
     disposing = true;
     unawaited(widget.speechRecognitionController.cancel());
+    _transcriptScrollController.dispose();
     super.dispose();
   }
 
@@ -157,134 +170,159 @@ class _ListeningScreenState extends State<ListeningScreen> {
       title: '会話',
       subtitle: listening ? '相手の話を聞いています' : '音声または文字で入力できます',
       onBack: () => unawaited(_goBack()),
-      child: ListView(
+      child: Column(
         children: [
-          Text('候補生成モード', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<SuggestionMode>(
-              segments: const [
-                ButtonSegment(
-                  value: SuggestionMode.fast,
-                  icon: Icon(Icons.bolt_outlined),
-                  label: Text('高速'),
-                ),
-                ButtonSegment(
-                  value: SuggestionMode.quality,
-                  icon: Icon(Icons.auto_awesome_outlined),
-                  label: Text('高品質'),
-                ),
-              ],
-              selected: {widget.suggestionMode},
-              onSelectionChanged: busy || listening
-                  ? null
-                  : (selection) {
-                      widget.onSuggestionModeChanged(selection.first);
-                    },
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            widget.suggestionMode == SuggestionMode.fast
-                ? 'すばやく文章候補を作ります'
-                : '履歴や関連情報を詳しく参照します',
-            style: const TextStyle(color: mutedInk),
-          ),
-          Column(
-            children: [
-              const SizedBox(height: 20),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                width: 152,
-                height: 152,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: listening ? rose100 : rose050,
-                  shape: BoxShape.circle,
-                ),
-                child: CircleAvatar(
-                  radius: 52,
-                  backgroundColor: listening ? rose700 : mutedInk,
-                  child: Icon(
-                    listening ? Icons.mic : Icons.mic_none,
-                    color: Colors.white,
-                    size: 48,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                listening
-                    ? '聞き取り中'
-                    : hasTranscript
-                    ? '聞き取りが終了しました'
-                    : '聞き取りを開始',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                listening ? '終わったらもう一度ボタンを押します' : 'ボタンを押してマイクを開始します',
-                style: const TextStyle(color: mutedInk),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 18),
-              AnimatedOpacity(
-                opacity: listening ? 1 : 0.25,
-                duration: const Duration(milliseconds: 180),
-                child: const SoundBars(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          if (hasTranscript) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: softSurface,
-                borderRadius: BorderRadius.circular(18),
-              ),
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    '認識中の文章',
-                    style: TextStyle(
-                      color: rose700,
-                      fontWeight: FontWeight.bold,
+                  Text(
+                    '候補生成モード',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<SuggestionMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: SuggestionMode.fast,
+                          icon: Icon(Icons.bolt_outlined),
+                          label: Text('高速'),
+                        ),
+                        ButtonSegment(
+                          value: SuggestionMode.quality,
+                          icon: Icon(Icons.auto_awesome_outlined),
+                          label: Text('高品質'),
+                        ),
+                      ],
+                      selected: {widget.suggestionMode},
+                      onSelectionChanged: busy || listening
+                          ? null
+                          : (selection) {
+                              widget.onSuggestionModeChanged(selection.first);
+                            },
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 6),
                   Text(
-                    transcript,
-                    style: Theme.of(context).textTheme.titleLarge,
+                    widget.suggestionMode == SuggestionMode.fast
+                        ? 'すばやく文章候補を作ります'
+                        : '履歴や関連情報を詳しく参照します',
+                    style: const TextStyle(color: mutedInk),
                   ),
+                  Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        width: 152,
+                        height: 152,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: listening ? rose100 : rose050,
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
+                          radius: 52,
+                          backgroundColor: listening ? rose700 : mutedInk,
+                          child: Icon(
+                            listening ? Icons.mic : Icons.mic_none,
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        listening
+                            ? '聞き取り中'
+                            : hasTranscript
+                            ? '聞き取りが終了しました'
+                            : '聞き取りを開始',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        listening ? '終わったらもう一度ボタンを押します' : 'ボタンを押してマイクを開始します',
+                        style: const TextStyle(color: mutedInk),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 18),
+                      AnimatedOpacity(
+                        opacity: listening ? 1 : 0.25,
+                        duration: const Duration(milliseconds: 180),
+                        child: const SoundBars(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  if (errorMessage != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(errorMessage!)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-          ],
-          if (errorMessage != null) ...[
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(errorMessage!)),
-                ],
+          ),
+          if (hasTranscript) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 128,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: softSurface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: rose100),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '認識中の文章',
+                      style: TextStyle(
+                        color: rose700,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Expanded(
+                      child: Scrollbar(
+                        controller: _transcriptScrollController,
+                        child: SingleChildScrollView(
+                          controller: _transcriptScrollController,
+                          child: Text(
+                            transcript,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 14),
           ],
+          const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             height: 60,

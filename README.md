@@ -22,6 +22,14 @@ flutter run
 バックエンドをDev認証モードで起動した場合は、`DEV_USER_ID`のユーザーとして
 Authorizationヘッダーなしでアプリをテストできます。
 
+Flutter側もログイン画面を表示しないDev認証モードで起動してください。
+バックエンドの `DEV_USER_ID`（`.env.example`ではID `1`）がテストユーザーとして
+使用されます。
+
+```shell
+flutter run --dart-define=AUTH_MODE=dev
+```
+
 iOS Simulator / macOSでは既定の接続先を利用できます。
 
 ```shell
