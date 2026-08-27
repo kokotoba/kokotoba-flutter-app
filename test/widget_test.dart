@@ -6,7 +6,7 @@ import 'package:kokotoba_flutter_app/main.dart';
 void main() {
   testWidgets('ホームから主要画面へ移動できる', (tester) async {
     await tester.pumpWidget(
-      const KokotobaApplication(controllers: KokotobaControllers.mock()),
+      KokotobaApplication(controllers: KokotobaControllers.mock()),
     );
 
     expect(find.text('ココトバ'), findsNothing);
@@ -17,10 +17,20 @@ void main() {
 
     await tester.tap(find.text('会話をはじめる'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('聞き取りを始める'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('聞き取りを始める'), findsOneWidget);
 
     await tester.tap(find.text('聞き取りを始める'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('聞き取りを停止'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('聞き取りを停止'), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -35,7 +45,7 @@ void main() {
 
   testWidgets('ボトムナビゲーションで設定を開ける', (tester) async {
     await tester.pumpWidget(
-      const KokotobaApplication(controllers: KokotobaControllers.mock()),
+      KokotobaApplication(controllers: KokotobaControllers.mock()),
     );
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
