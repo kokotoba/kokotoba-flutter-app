@@ -62,6 +62,7 @@ class _KokotobaAppState extends State<KokotobaApp> {
         startConversation: () => openConversation(ConversationEntry.listening),
         manualInput: () => openConversation(ConversationEntry.manual),
         openCards: () => selectTab(MainTab.cards),
+        registeredCardController: widget.controllers.registeredCardController,
       ),
       MainTab.conversation => ConversationScreen(
         key: ValueKey(conversationEntry),
