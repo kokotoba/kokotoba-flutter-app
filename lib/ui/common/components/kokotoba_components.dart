@@ -173,17 +173,21 @@ class SmallIconAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap ?? () {},
-      borderRadius: BorderRadius.circular(10),
-      child: SizedBox(
-        width: 54,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: rose700),
-            Text(label, style: const TextStyle(color: mutedInk, fontSize: 11)),
-          ],
+    return SizedBox(
+      height: 44,
+      child: TextButton.icon(
+        onPressed: onTap ?? () {},
+        icon: Icon(icon, size: 22),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          foregroundColor: rose700,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );
