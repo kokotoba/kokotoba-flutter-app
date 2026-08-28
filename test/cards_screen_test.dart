@@ -35,6 +35,33 @@ class _MemoryRegisteredCardController implements RegisteredCardController {
 }
 
 void main() {
+  testWidgets('カード操作を見やすいサイズで均等に表示する', (tester) async {
+    final controller = _MemoryRegisteredCardController()
+      ..cards.add(const RegisteredCard(id: 1, text: 'お願いします'));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: CardsScreen(controller: controller)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final readButton = find.widgetWithText(TextButton, '読む');
+    final editButton = find.widgetWithText(TextButton, '編集');
+    final deleteButton = find.widgetWithText(TextButton, '削除');
+    expect(readButton, findsOneWidget);
+    expect(editButton, findsOneWidget);
+    expect(deleteButton, findsOneWidget);
+
+    final readRect = tester.getRect(readButton);
+    final editRect = tester.getRect(editButton);
+    final deleteRect = tester.getRect(deleteButton);
+    expect(readRect.height, 44);
+    expect(editRect.height, 44);
+    expect(deleteRect.height, 44);
+    expect(readRect.width, closeTo(editRect.width, 0.1));
+    expect(editRect.width, closeTo(deleteRect.width, 0.1));
+  });
+
   testWidgets('未登録なら「ありません」と表示し自由入力で追加できる', (tester) async {
     final controller = _MemoryRegisteredCardController();
     await tester.pumpWidget(

@@ -35,22 +35,30 @@ class PhraseCard extends StatelessWidget {
                       card.text,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
+                    const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        SmallIconAction(
-                          icon: Icons.volume_up_outlined,
-                          label: '読む',
-                          onTap: () => SpeechUtil.speak(card.text),
+                        Expanded(
+                          child: SmallIconAction(
+                            icon: Icons.volume_up_outlined,
+                            label: '読む',
+                            onTap: () => SpeechUtil.speak(card.text),
+                          ),
                         ),
-                        const SmallIconAction(
-                          icon: Icons.edit_outlined,
-                          label: '編集',
+                        const SizedBox(width: 4),
+                        const Expanded(
+                          child: SmallIconAction(
+                            icon: Icons.edit_outlined,
+                            label: '編集',
+                          ),
                         ),
-                        SmallIconAction(
-                          icon: Icons.delete_outline,
-                          label: '削除',
-                          onTap: onDelete,
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: SmallIconAction(
+                            icon: Icons.delete_outline,
+                            label: '削除',
+                            onTap: onDelete,
+                          ),
                         ),
                       ],
                     ),

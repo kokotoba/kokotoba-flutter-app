@@ -205,13 +205,13 @@ class _ListeningScreenState extends State<ListeningScreen> {
                             },
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    widget.suggestionMode == SuggestionMode.fast
-                        ? 'すばやく文章候補を作ります'
-                        : '履歴や関連情報を詳しく参照します',
-                    style: const TextStyle(color: mutedInk),
-                  ),
+                  if (widget.suggestionMode == SuggestionMode.quality) ...[
+                    const SizedBox(height: 6),
+                    const Text(
+                      '履歴や関連情報を詳しく参照します',
+                      style: TextStyle(color: mutedInk),
+                    ),
+                  ],
                   Column(
                     children: [
                       const SizedBox(height: 20),
