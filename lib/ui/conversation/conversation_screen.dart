@@ -311,6 +311,13 @@ class _ConversationSuggestionsView extends StatelessWidget {
             return const Center(child: Text('まず聞き取りを始めてください'));
           }
           if (snapshot.connectionState != ConnectionState.done) {
+            if (recognizedText != null) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  key: ValueKey('inference-loading-indicator'),
+                ),
+              );
+            }
             return const DelayedLoadingIndicator();
           }
           if (snapshot.hasError || snapshot.data == null) {

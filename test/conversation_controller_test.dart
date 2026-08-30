@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,12 +49,30 @@ class _TestConversationController implements ConversationController {
   }
 }
 
+class _PendingConversationController implements ConversationController {
+  final result = Completer<ConversationResult>();
+
+  @override
+  Future<ConversationResult> fetchConversationResult({
+    String question = '',
+    SuggestionMode mode = SuggestionMode.fast,
+  }) => result.future;
+
+  @override
+  Future<void> selectCard({
+    required String suggestionId,
+    required String cardId,
+  }) async {}
+}
+
 class _TestSpeechRecognitionController implements SpeechRecognitionController {
   SpeechResultCallback? onResult;
   ListeningStateCallback? onListeningChanged;
   bool started = false;
   bool stopped = false;
   bool canceled = false;
+  int initializeCount = 0;
+  Completer<void>? stopCompleter;
 
   @override
   Future<bool> initialize({
@@ -60,6 +80,7 @@ class _TestSpeechRecognitionController implements SpeechRecognitionController {
     required SpeechErrorCallback onError,
     required ListeningStateCallback onListeningChanged,
   }) async {
+    initializeCount++;
     this.onResult = onResult;
     this.onListeningChanged = onListeningChanged;
     return true;
@@ -75,6 +96,7 @@ class _TestSpeechRecognitionController implements SpeechRecognitionController {
   Future<void> stop() async {
     stopped = true;
     onListeningChanged?.call(false);
+    await stopCompleter?.future;
   }
 
   @override
@@ -203,6 +225,10 @@ void main() {
       ),
     );
 
+    await tester.pump();
+    expect(speech.initializeCount, 1);
+    expect(speech.started, isFalse);
+
     expect(find.text('聞き取りを始める'), findsOneWidget);
     await tester.tap(find.text('聞き取りを始める'));
     await tester.pump();
@@ -231,6 +257,52 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
     expect(history.endedSessionIds, isEmpty);
+  });
+
+  testWidgets('マイク停止を待たず推論へ移りインジケーターを表示する', (tester) async {
+    final conversation = _PendingConversationController();
+    final speech = _TestSpeechRecognitionController()
+      ..stopCompleter = Completer<void>();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ConversationScreen(
+            controller: conversation,
+            historyController: _TestHistoryController(),
+            speechRecognitionController: speech,
+            initialEntry: ConversationEntry.listening,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('聞き取りを始める'));
+    await tester.pump();
+    speech.recognize('停止を待たずに送る質問');
+    await tester.pump();
+    await scrollTo(tester, '聞き取りを停止');
+    await tester.tap(find.text('聞き取りを停止'));
+    await tester.pump();
+
+    expect(speech.stopped, isTrue);
+    expect(speech.stopCompleter!.isCompleted, isFalse);
+    expect(
+      find.byKey(const ValueKey('inference-loading-indicator')),
+      findsOneWidget,
+    );
+    expect(find.text('準備中...'), findsNothing);
+
+    speech.stopCompleter!.complete();
+    conversation.result.complete(
+      const ConversationResult(
+        recognizedText: '停止を待たずに送る質問',
+        suggestions: [ConversationSuggestion(text: '生成された回答', reason: 'テスト')],
+        quickPhrases: [],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('生成された回答'), findsOneWidget);
   });
 
   testWidgets('候補一覧の読むボタンで選択として保存して読み上げる', (tester) async {
