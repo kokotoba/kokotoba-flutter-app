@@ -32,14 +32,53 @@ class ListeningScreen extends StatefulWidget {
 
 class _ListeningScreenState extends State<ListeningScreen> {
   final ScrollController _transcriptScrollController = ScrollController();
+  late final Future<bool> _initialization;
 
-  bool initialized = false;
   bool listening = false;
   bool sessionStarted = false;
   bool busy = false;
   bool disposing = false;
+  bool handingOffRecognition = false;
   String transcript = '';
   String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // タップ後の待ち時間を減らすため、画面表示と同時に音声認識を準備する。
+    _initialization = _initializeSpeechRecognition();
+  }
+
+  Future<bool> _initializeSpeechRecognition() async {
+    try {
+      final initialized = await widget.speechRecognitionController.initialize(
+        onResult: (text, _) {
+          if (disposing || !mounted) return;
+          _updateTranscript(text);
+        },
+        onError: (message) {
+          if (disposing || !mounted) return;
+          setState(() {
+            listening = false;
+            errorMessage = _localizedError(message);
+          });
+        },
+        onListeningChanged: (value) {
+          if (disposing || !mounted) return;
+          setState(() => listening = value);
+        },
+      );
+      if (!initialized && mounted) {
+        setState(() => errorMessage = 'マイクまたは音声認識の利用が許可されていません');
+      }
+      return initialized;
+    } catch (error, stackTrace) {
+      debugPrint('Failed to initialize speech recognition: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      if (mounted) setState(() => errorMessage = '音声認識を準備できませんでした');
+      return false;
+    }
+  }
 
   Future<void> _toggleListening() async {
     if (busy) return;
@@ -61,28 +100,8 @@ class _ListeningScreenState extends State<ListeningScreen> {
       transcript = '';
     });
     try {
+      final initialized = await _initialization;
       if (!initialized) {
-        initialized = await widget.speechRecognitionController.initialize(
-          onResult: (text, _) {
-            if (disposing || !mounted) return;
-            _updateTranscript(text);
-          },
-          onError: (message) {
-            if (disposing || !mounted) return;
-            setState(() {
-              listening = false;
-              errorMessage = _localizedError(message);
-            });
-          },
-          onListeningChanged: (value) {
-            if (disposing || !mounted) return;
-            setState(() => listening = value);
-          },
-        );
-      }
-      if (!initialized) {
-        if (!mounted) return;
-        setState(() => errorMessage = 'マイクまたは音声認識の利用が許可されていません');
         return;
       }
 
@@ -103,6 +122,18 @@ class _ListeningScreenState extends State<ListeningScreen> {
 
   Future<void> _stopAndUseResult() async {
     setState(() => busy = true);
+    final recognizedBeforeStop = transcript.trim();
+
+    // partialResultsで文字が得られていれば、OSのマイク停止完了を待たずに
+    // 推論を開始する。停止処理は同時にバックグラウンドで完了させる。
+    if (recognizedBeforeStop.isNotEmpty) {
+      handingOffRecognition = true;
+      final stopFuture = widget.speechRecognitionController.stop();
+      widget.onRecognized(recognizedBeforeStop);
+      unawaited(_finishStoppingAfterHandoff(stopFuture));
+      return;
+    }
+
     try {
       await widget.speechRecognitionController.stop();
       if (!mounted) return;
@@ -122,6 +153,20 @@ class _ListeningScreenState extends State<ListeningScreen> {
       if (mounted) setState(() => errorMessage = '音声認識を停止できませんでした');
     } finally {
       if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> _finishStoppingAfterHandoff(Future<void> stopFuture) async {
+    try {
+      await stopFuture;
+    } catch (error, stackTrace) {
+      debugPrint('Failed to stop speech recognition after handoff: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      try {
+        await widget.speechRecognitionController.cancel();
+      } catch (_) {
+        // 画面遷移後なので、停止の再試行失敗はログだけに留める。
+      }
     }
   }
 
@@ -158,7 +203,9 @@ class _ListeningScreenState extends State<ListeningScreen> {
   @override
   void dispose() {
     disposing = true;
-    unawaited(widget.speechRecognitionController.cancel());
+    if (!handingOffRecognition) {
+      unawaited(widget.speechRecognitionController.cancel());
+    }
     _transcriptScrollController.dispose();
     super.dispose();
   }
